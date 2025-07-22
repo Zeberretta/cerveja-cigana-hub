@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Factory, Users, Package, Store } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const personas = [
   {
@@ -14,7 +15,8 @@ const personas = [
       "Marketplace para ofertar cervejas",
       "Gestão de dados de envase e MAPA"
     ],
-    color: "primary"
+    color: "primary",
+    link: "/cervejaria-cigana"
   },
   {
     id: "factory",
@@ -27,7 +29,8 @@ const personas = [
       "Recebimento automático de insumos",
       "Dashboard de performance"
     ],
-    color: "brewery"
+    color: "brewery",
+    link: "/fabrica"
   },
   {
     id: "supplier",
@@ -40,7 +43,8 @@ const personas = [
       "Gestão de estoque inteligente",
       "Relatórios de vendas"
     ],
-    color: "accent"
+    color: "accent",
+    link: "/fornecedor"
   },
   {
     id: "bar",
@@ -53,7 +57,8 @@ const personas = [
       "Informações de fabricação",
       "Pedidos simplificados"
     ],
-    color: "hero"
+    color: "hero",
+    link: "/bar"
   }
 ];
 
@@ -100,8 +105,8 @@ const PersonaSection = () => {
                   ))}
                 </ul>
                 
-                <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors mt-auto">
-                  Saiba Mais
+                <Button asChild variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors mt-auto">
+                  <Link to={persona.link}>Saiba Mais</Link>
                 </Button>
               </CardContent>
             </Card>
