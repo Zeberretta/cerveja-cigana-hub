@@ -78,7 +78,7 @@ const PersonaSection = () => {
               key={persona.id} 
               className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 hover:border-primary/50"
             >
-              <CardContent className="p-8 text-center">
+              <CardContent className="p-8 text-center flex flex-col h-full">
                 <div className={`w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-${persona.color} to-${persona.color}/70 flex items-center justify-center`}>
                   <persona.icon className="w-8 h-8 text-white" />
                 </div>
@@ -91,7 +91,7 @@ const PersonaSection = () => {
                   {persona.description}
                 </p>
                 
-                <ul className="text-left space-y-2 mb-6">
+                <ul className="text-left space-y-2 mb-6 flex-grow">
                   {persona.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start text-sm text-muted-foreground">
                       <span className="w-2 h-2 rounded-full bg-primary mr-3 mt-2 flex-shrink-0" />
@@ -100,7 +100,7 @@ const PersonaSection = () => {
                   ))}
                 </ul>
                 
-                <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors mt-auto">
                   Saiba Mais
                 </Button>
               </CardContent>
