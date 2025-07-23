@@ -1,170 +1,412 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Link } from "react-router-dom";
-import { Users, Calendar, Package, BarChart3, Clock, MapPin } from "lucide-react";
+import { Users, Calendar, Package, Star, Plus, Edit, Trash2, MessageCircle, Clock } from "lucide-react";
+import { useForm } from "react-hook-form";
+import Chat from "@/components/Chat";
+
+interface Factory {
+  id: string;
+  name: string;
+  location: string;
+  availability: string;
+  price: number;
+  rating: number;
+}
+
+interface Recipe {
+  id: string;
+  name: string;
+  style: string;
+  abv: number;
+  ibu: number;
+  price: number;
+  status: string;
+}
 
 const GypsyBrewery = () => {
+  const [factories] = useState<Factory[]>([
+    { id: '1', name: 'Cervejaria Independente', location: 'São Paulo', availability: 'Disponível', price: 2500, rating: 4.8 },
+    { id: '2', name: 'Brasil Brewing', location: 'Rio de Janeiro', availability: '15 dias', price: 2200, rating: 4.6 },
+    { id: '3', name: 'Craft Factory', location: 'Belo Horizonte', availability: 'Lotada', price: 2800, rating: 4.9 }
+  ]);
+
+  const [recipes, setRecipes] = useState<Recipe[]>([
+    { id: '1', name: 'IPA Tropical', style: 'IPA', abv: 6.5, ibu: 45, price: 12.50, status: 'Ativa' },
+    { id: '2', name: 'Pilsen Premium', style: 'Pilsen', abv: 4.8, ibu: 25, price: 8.90, status: 'Ativa' },
+    { id: '3', name: 'Stout Imperial', style: 'Stout', abv: 8.2, ibu: 60, price: 15.00, status: 'Rascunho' }
+  ]);
+
+  const [showChat, setShowChat] = useState(false);
+  const [isAddingRecipe, setIsAddingRecipe] = useState(false);
+
+  const form = useForm();
+
+  const addRecipe = (data: any) => {
+    const newRecipe: Recipe = {
+      id: Date.now().toString(),
+      name: data.name,
+      style: data.style,
+      abv: parseFloat(data.abv),
+      ibu: parseInt(data.ibu),
+      price: parseFloat(data.price),
+      status: 'Rascunho'
+    };
+    setRecipes([...recipes, newRecipe]);
+    setIsAddingRecipe(false);
+    form.reset();
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Users className="w-8 h-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Cervejaria Cigana</h1>
+            <h1 className="text-2xl font-bold text-foreground">Dashboard Cigano</h1>
           </div>
-          <Button asChild variant="outline">
-            <Link to="/">Voltar</Link>
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button onClick={() => setShowChat(!showChat)} variant="outline" size="sm">
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Chat
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/">Voltar</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
-            Plataforma Completa para Ciganos
-          </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
-            Gerencie Sua Cervejaria
-            <span className="block text-primary">Do Planejamento à Venda</span>
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Cote e agende fabricação, compre insumos direto para fábrica e oferte suas cervejas 
-            com dados completos de envase e MAPA.
-          </p>
-          <Button variant="hero" size="lg" className="text-lg px-8 py-6">
-            Começar Gratuitamente
-          </Button>
-        </div>
-      </section>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="lg:col-span-3">
+            <Tabs defaultValue="overview" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+                <TabsTrigger value="factories">Fábricas</TabsTrigger>
+                <TabsTrigger value="recipes">Receitas</TabsTrigger>
+                <TabsTrigger value="profile">Perfil</TabsTrigger>
+              </TabsList>
 
-      {/* Features Grid */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <h3 className="text-3xl font-bold text-center mb-12 text-foreground">
-            Funcionalidades Principais
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <Calendar className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Cotação & Agendamento</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Compare preços de diferentes fábricas e agende sua produção com facilidade.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-primary" />
-                    Disponibilidade em tempo real
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-primary" />
-                    Comparação de preços
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+              <TabsContent value="overview" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Receitas Ativas</p>
+                          <p className="text-3xl font-bold text-primary">12</p>
+                        </div>
+                        <Package className="w-8 h-8 text-primary/60" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Produções Agendadas</p>
+                          <p className="text-3xl font-bold text-brewery">5</p>
+                        </div>
+                        <Calendar className="w-8 h-8 text-brewery/60" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Bares Conectados</p>
+                          <p className="text-3xl font-bold text-accent">28</p>
+                        </div>
+                        <Users className="w-8 h-8 text-accent/60" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <Package className="w-10 h-10 text-brewery mb-2" />
-                <CardTitle>Compra de Insumos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Adquira malte, lúpulo e outros insumos com entrega direta na fábrica.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-brewery" />
-                    Entrega na fábrica
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-brewery" />
-                    Controle de qualidade
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Próximas Produções</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-4 border rounded-lg">
+                        <div>
+                          <h4 className="font-semibold">IPA Tropical - 1000L</h4>
+                          <p className="text-sm text-muted-foreground">Cervejaria Independente</p>
+                        </div>
+                        <Badge>15/02/2024</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-4 border rounded-lg">
+                        <div>
+                          <h4 className="font-semibold">Pilsen Premium - 500L</h4>
+                          <p className="text-sm text-muted-foreground">Brasil Brewing</p>
+                        </div>
+                        <Badge variant="secondary">22/02/2024</Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <BarChart3 className="w-10 h-10 text-accent mb-2" />
-                <CardTitle>Marketplace</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Oferte suas cervejas para bares com informações completas e certificações.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-accent" />
-                    Dados de envase
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-accent" />
-                    Certificação MAPA
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+              <TabsContent value="factories" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Disponibilidade de Fábricas</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Fábrica</TableHead>
+                          <TableHead>Localização</TableHead>
+                          <TableHead>Disponibilidade</TableHead>
+                          <TableHead>Preço/L</TableHead>
+                          <TableHead>Avaliação</TableHead>
+                          <TableHead>Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {factories.map((factory) => (
+                          <TableRow key={factory.id}>
+                            <TableCell className="font-medium">{factory.name}</TableCell>
+                            <TableCell>{factory.location}</TableCell>
+                            <TableCell>
+                              <Badge variant={factory.availability === 'Disponível' ? 'default' : 'secondary'}>
+                                {factory.availability}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>R$ {factory.price.toFixed(2)}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                {factory.rating}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline">Cotar</Button>
+                                <Button size="sm" variant="outline">Avaliar</Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="recipes" className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold">Minhas Receitas</h2>
+                  <Dialog open={isAddingRecipe} onOpenChange={setIsAddingRecipe}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Nova Receita
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Cadastrar Nova Receita</DialogTitle>
+                      </DialogHeader>
+                      <Form {...form}>
+                        <form onSubmit={form.handleSubmit(addRecipe)} className="space-y-4">
+                          <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Nome da Receita</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="Ex: IPA Tropical" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="style"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Estilo</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Selecione o estilo" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="IPA">IPA</SelectItem>
+                                    <SelectItem value="Pilsen">Pilsen</SelectItem>
+                                    <SelectItem value="Stout">Stout</SelectItem>
+                                    <SelectItem value="Weiss">Weiss</SelectItem>
+                                    <SelectItem value="Lager">Lager</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="abv"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>ABV (%)</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} type="number" step="0.1" placeholder="6.5" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="ibu"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>IBU</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} type="number" placeholder="45" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <FormField
+                            control={form.control}
+                            name="price"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Preço de Venda (R$)</FormLabel>
+                                <FormControl>
+                                  <Input {...field} type="number" step="0.01" placeholder="12.50" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="flex justify-end gap-2">
+                            <Button type="button" variant="outline" onClick={() => setIsAddingRecipe(false)}>
+                              Cancelar
+                            </Button>
+                            <Button type="submit">Salvar Receita</Button>
+                          </div>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                <Card>
+                  <CardContent className="pt-6">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Nome</TableHead>
+                          <TableHead>Estilo</TableHead>
+                          <TableHead>ABV</TableHead>
+                          <TableHead>IBU</TableHead>
+                          <TableHead>Preço</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {recipes.map((recipe) => (
+                          <TableRow key={recipe.id}>
+                            <TableCell className="font-medium">{recipe.name}</TableCell>
+                            <TableCell>{recipe.style}</TableCell>
+                            <TableCell>{recipe.abv}%</TableCell>
+                            <TableCell>{recipe.ibu}</TableCell>
+                            <TableCell>R$ {recipe.price.toFixed(2)}</TableCell>
+                            <TableCell>
+                              <Badge variant={recipe.status === 'Ativa' ? 'default' : 'secondary'}>
+                                {recipe.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline">
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="profile" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Dados da Cervejaria</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="brewery-name">Nome da Cervejaria</Label>
+                        <Input id="brewery-name" placeholder="Nome da sua cervejaria" />
+                      </div>
+                      <div>
+                        <Label htmlFor="cnpj">CNPJ</Label>
+                        <Input id="cnpj" placeholder="00.000.000/0000-00" />
+                      </div>
+                      <div>
+                        <Label htmlFor="phone">Telefone</Label>
+                        <Input id="phone" placeholder="(11) 99999-9999" />
+                      </div>
+                      <div>
+                        <Label htmlFor="email">E-mail</Label>
+                        <Input id="email" type="email" placeholder="contato@cervejaria.com" />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="address">Endereço</Label>
+                      <Input id="address" placeholder="Endereço completo" />
+                    </div>
+                    <div>
+                      <Label htmlFor="description">Descrição</Label>
+                      <Textarea id="description" placeholder="Conte sobre sua cervejaria..." />
+                    </div>
+                    <Button>Salvar Dados</Button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
-        </div>
-      </section>
 
-      {/* Dashboard Preview */}
-      <section className="py-16 bg-muted/50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold mb-4 text-foreground">
-              Dashboard Intuitivo
-            </h3>
-            <p className="text-xl text-muted-foreground">
-              Gerencie toda sua operação em um só lugar
-            </p>
-          </div>
-          <div className="bg-white rounded-lg p-8 shadow-lg">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">12</div>
-                <p className="text-muted-foreground">Receitas Cadastradas</p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-brewery mb-2">5</div>
-                <p className="text-muted-foreground">Produções Agendadas</p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-accent mb-2">28</div>
-                <p className="text-muted-foreground">Bares Conectados</p>
-              </div>
+          {/* Chat Sidebar */}
+          {showChat && (
+            <div className="lg:col-span-1">
+              <Chat title="Chat com Fábrica" recipient="Cervejaria Independente" />
             </div>
-          </div>
+          )}
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h3 className="text-3xl font-bold mb-6 text-foreground">
-            Pronto para Revolucionar Sua Cervejaria?
-          </h3>
-          <p className="text-xl text-muted-foreground mb-8">
-            Junte-se a centenas de cervejarias ciganas que já usam nossa plataforma.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="hero" size="lg" className="text-lg px-8 py-6">
-              Criar Conta Gratuita
-            </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-              Agendar Demonstração
-            </Button>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 };

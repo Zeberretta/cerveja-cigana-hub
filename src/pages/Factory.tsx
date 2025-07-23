@@ -1,180 +1,412 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Link } from "react-router-dom";
-import { Factory, Calendar, Users, TrendingUp, Clock, Settings } from "lucide-react";
+import { Factory, Calendar, Users, TrendingUp, Plus, Edit, Trash2, MessageCircle, Settings } from "lucide-react";
+import { useForm } from "react-hook-form";
+import Chat from "@/components/Chat";
+
+interface Equipment {
+  id: string;
+  name: string;
+  type: string;
+  capacity: number;
+  status: string;
+}
+
+interface Schedule {
+  id: string;
+  gypsy: string;
+  recipe: string;
+  date: string;
+  volume: number;
+  status: string;
+}
 
 const FactoryPage = () => {
+  const [equipment, setEquipment] = useState<Equipment[]>([
+    { id: '1', name: 'Tanque 1', type: 'Fermentador', capacity: 1000, status: 'Disponível' },
+    { id: '2', name: 'Tanque 2', type: 'Fermentador', capacity: 1500, status: 'Em Uso' },
+    { id: '3', name: 'Mosturador A', type: 'Mosturador', capacity: 800, status: 'Manutenção' }
+  ]);
+
+  const [schedule, setSchedule] = useState<Schedule[]>([
+    { id: '1', gypsy: 'Cervejaria Artesanal SP', recipe: 'IPA Tropical', date: '2024-02-15', volume: 1000, status: 'Confirmado' },
+    { id: '2', gypsy: 'Brasil Craft', recipe: 'Pilsen Premium', date: '2024-02-18', volume: 500, status: 'Pendente' },
+    { id: '3', gypsy: 'Hop Lovers', recipe: 'Stout Imperial', date: '2024-02-22', volume: 800, status: 'Confirmado' }
+  ]);
+
+  const [showChat, setShowChat] = useState(false);
+  const [isAddingEquipment, setIsAddingEquipment] = useState(false);
+
+  const form = useForm();
+
+  const addEquipment = (data: any) => {
+    const newEquipment: Equipment = {
+      id: Date.now().toString(),
+      name: data.name,
+      type: data.type,
+      capacity: parseInt(data.capacity),
+      status: 'Disponível'
+    };
+    setEquipment([...equipment, newEquipment]);
+    setIsAddingEquipment(false);
+    form.reset();
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Factory className="w-8 h-8 text-brewery" />
-            <h1 className="text-2xl font-bold text-foreground">Fábrica</h1>
+            <h1 className="text-2xl font-bold text-foreground">Dashboard Fábrica</h1>
           </div>
-          <Button asChild variant="outline">
-            <Link to="/">Voltar</Link>
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button onClick={() => setShowChat(!showChat)} variant="outline" size="sm">
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Chat
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/">Voltar</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <Badge className="mb-4 bg-brewery/10 text-brewery border-brewery/20">
-            Otimização de Produção
-          </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
-            Maximize Sua Capacidade
-            <span className="block text-brewery">de Produção</span>
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Gerencie múltiplos ciganos em sua agenda sem se preocupar com insumos. 
-            Receba pedidos automaticamente e otimize sua operação.
-          </p>
-          <Button variant="brewery" size="lg" className="text-lg px-8 py-6">
-            Integrar Minha Fábrica
-          </Button>
-        </div>
-      </section>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="lg:col-span-3">
+            <Tabs defaultValue="overview" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+                <TabsTrigger value="schedule">Agenda</TabsTrigger>
+                <TabsTrigger value="equipment">Equipamentos</TabsTrigger>
+                <TabsTrigger value="pricing">Preços</TabsTrigger>
+                <TabsTrigger value="profile">Perfil</TabsTrigger>
+              </TabsList>
 
-      {/* Features Grid */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <h3 className="text-3xl font-bold text-center mb-12 text-foreground">
-            Recursos para Fábricas
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <Calendar className="w-10 h-10 text-brewery mb-2" />
-                <CardTitle>Agenda Integrada</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Visualize e gerencie todas as produções agendadas em um calendário unificado.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-brewery" />
-                    Disponibilidade automática
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Settings className="w-4 h-4 text-brewery" />
-                    Configuração personalizada
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+              <TabsContent value="overview" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Utilização</p>
+                          <p className="text-3xl font-bold text-brewery">85%</p>
+                        </div>
+                        <TrendingUp className="w-8 h-8 text-brewery/60" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Ciganos Ativos</p>
+                          <p className="text-3xl font-bold text-primary">24</p>
+                        </div>
+                        <Users className="w-8 h-8 text-primary/60" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Bateladas/Mês</p>
+                          <p className="text-3xl font-bold text-accent">156</p>
+                        </div>
+                        <Factory className="w-8 h-8 text-accent/60" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Satisfação</p>
+                          <p className="text-3xl font-bold text-hero">98%</p>
+                        </div>
+                        <TrendingUp className="w-8 h-8 text-hero/60" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <Users className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Gestão de Ciganos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Acompanhe o histórico e performance de cada cervejaria cigana parceira.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-primary" />
-                    Métricas de performance
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-primary" />
-                    Histórico completo
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Próximas Produções</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {schedule.slice(0, 3).map((item) => (
+                        <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <h4 className="font-semibold">{item.recipe} - {item.volume}L</h4>
+                            <p className="text-sm text-muted-foreground">{item.gypsy}</p>
+                          </div>
+                          <div className="text-right">
+                            <Badge variant={item.status === 'Confirmado' ? 'default' : 'secondary'}>
+                              {item.status}
+                            </Badge>
+                            <p className="text-sm text-muted-foreground mt-1">{item.date}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <TrendingUp className="w-10 h-10 text-accent mb-2" />
-                <CardTitle>Dashboard Analytics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Relatórios detalhados sobre utilização da capacidade e rentabilidade.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-accent" />
-                    Análise de capacidade
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Factory className="w-4 h-4 text-accent" />
-                    Eficiência operacional
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+              <TabsContent value="schedule" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Cronograma de Produção</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Cigano</TableHead>
+                          <TableHead>Receita</TableHead>
+                          <TableHead>Data</TableHead>
+                          <TableHead>Volume (L)</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {schedule.map((item) => (
+                          <TableRow key={item.id}>
+                            <TableCell className="font-medium">{item.gypsy}</TableCell>
+                            <TableCell>{item.recipe}</TableCell>
+                            <TableCell>{item.date}</TableCell>
+                            <TableCell>{item.volume}</TableCell>
+                            <TableCell>
+                              <Badge variant={item.status === 'Confirmado' ? 'default' : 'secondary'}>
+                                {item.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline">Confirmar</Button>
+                                <Button size="sm" variant="outline">Editar</Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="equipment" className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold">Equipamentos</h2>
+                  <Dialog open={isAddingEquipment} onOpenChange={setIsAddingEquipment}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Novo Equipamento
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Cadastrar Equipamento</DialogTitle>
+                      </DialogHeader>
+                      <Form {...form}>
+                        <form onSubmit={form.handleSubmit(addEquipment)} className="space-y-4">
+                          <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Nome do Equipamento</FormLabel>
+                                <FormControl>
+                                  <Input {...field} placeholder="Ex: Tanque 3" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="type"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Tipo</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Selecione o tipo" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="Fermentador">Fermentador</SelectItem>
+                                    <SelectItem value="Mosturador">Mosturador</SelectItem>
+                                    <SelectItem value="Brassagem">Equipamento de Brassagem</SelectItem>
+                                    <SelectItem value="Envase">Linha de Envase</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="capacity"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Capacidade (L)</FormLabel>
+                                <FormControl>
+                                  <Input {...field} type="number" placeholder="1000" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <div className="flex justify-end gap-2">
+                            <Button type="button" variant="outline" onClick={() => setIsAddingEquipment(false)}>
+                              Cancelar
+                            </Button>
+                            <Button type="submit">Salvar</Button>
+                          </div>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                <Card>
+                  <CardContent className="pt-6">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Nome</TableHead>
+                          <TableHead>Tipo</TableHead>
+                          <TableHead>Capacidade (L)</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Ações</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {equipment.map((item) => (
+                          <TableRow key={item.id}>
+                            <TableCell className="font-medium">{item.name}</TableCell>
+                            <TableCell>{item.type}</TableCell>
+                            <TableCell>{item.capacity}</TableCell>
+                            <TableCell>
+                              <Badge variant={item.status === 'Disponível' ? 'default' : 
+                                            item.status === 'Em Uso' ? 'secondary' : 'destructive'}>
+                                {item.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline">
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button size="sm" variant="outline">
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="pricing" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Preços dos Serviços</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="price-per-liter">Preço por Litro (R$)</Label>
+                        <Input id="price-per-liter" type="number" step="0.01" placeholder="2.50" />
+                      </div>
+                      <div>
+                        <Label htmlFor="setup-fee">Taxa de Setup (R$)</Label>
+                        <Input id="setup-fee" type="number" step="0.01" placeholder="500.00" />
+                      </div>
+                      <div>
+                        <Label htmlFor="minimum-batch">Lote Mínimo (L)</Label>
+                        <Input id="minimum-batch" type="number" placeholder="500" />
+                      </div>
+                      <div>
+                        <Label htmlFor="lead-time">Prazo Médio (dias)</Label>
+                        <Input id="lead-time" type="number" placeholder="15" />
+                      </div>
+                    </div>
+                    <Button>Atualizar Preços</Button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="profile" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Dados da Fábrica</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="factory-name">Nome da Fábrica</Label>
+                        <Input id="factory-name" placeholder="Nome da sua fábrica" />
+                      </div>
+                      <div>
+                        <Label htmlFor="cnpj">CNPJ</Label>
+                        <Input id="cnpj" placeholder="00.000.000/0000-00" />
+                      </div>
+                      <div>
+                        <Label htmlFor="capacity">Capacidade Total (L/mês)</Label>
+                        <Input id="capacity" type="number" placeholder="50000" />
+                      </div>
+                      <div>
+                        <Label htmlFor="established">Ano de Fundação</Label>
+                        <Input id="established" type="number" placeholder="2015" />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="address">Endereço</Label>
+                      <Input id="address" placeholder="Endereço completo da fábrica" />
+                    </div>
+                    <div>
+                      <Label htmlFor="description">Descrição</Label>
+                      <Textarea id="description" placeholder="Descreva sua fábrica e diferenciais..." />
+                    </div>
+                    <Button>Salvar Dados</Button>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
-        </div>
-      </section>
 
-      {/* Production Stats */}
-      <section className="py-16 bg-muted/50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold mb-4 text-foreground">
-              Performance da Fábrica
-            </h3>
-            <p className="text-xl text-muted-foreground">
-              Acompanhe métricas essenciais em tempo real
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-brewery mb-2">85%</div>
-                <p className="text-muted-foreground">Utilização da Capacidade</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-primary mb-2">24</div>
-                <p className="text-muted-foreground">Ciganos Ativos</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-accent mb-2">156</div>
-                <p className="text-muted-foreground">Bateladas/Mês</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-hero mb-2">98%</div>
-                <p className="text-muted-foreground">Satisfação Cliente</p>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Chat Sidebar */}
+          {showChat && (
+            <div className="lg:col-span-1">
+              <Chat title="Chat com Ciganos" recipient="Cervejaria Artesanal SP" />
+            </div>
+          )}
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h3 className="text-3xl font-bold mb-6 text-foreground">
-            Otimize Sua Produção Hoje
-          </h3>
-          <p className="text-xl text-muted-foreground mb-8">
-            Conecte-se com cervejarias ciganas e maximize o uso da sua capacidade produtiva.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="brewery" size="lg" className="text-lg px-8 py-6">
-              Cadastrar Fábrica
-            </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-              Ver Demonstração
-            </Button>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 };

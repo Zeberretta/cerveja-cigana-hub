@@ -1,18 +1,69 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Link } from "react-router-dom";
-import { Package, Truck, BarChart3, Bell, MapPin, CheckCircle } from "lucide-react";
+import { Package, Truck, BarChart3, Plus, Edit, Trash2, AlertTriangle } from "lucide-react";
+import { useForm } from "react-hook-form";
+
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  stock: number;
+  price: number;
+  unit: string;
+  status: string;
+}
 
 const Supplier = () => {
+  const [products, setProducts] = useState<Product[]>([
+    { id: '1', name: 'Malte Pilsen', category: 'Maltes', stock: 5000, price: 4.50, unit: 'kg', status: 'Disponível' },
+    { id: '2', name: 'Lúpulo Cascade', category: 'Lúpulos', stock: 150, price: 85.00, unit: 'kg', status: 'Estoque Baixo' },
+    { id: '3', name: 'Levedura US-05', category: 'Leveduras', stock: 200, price: 25.00, unit: 'unidade', status: 'Disponível' },
+    { id: '4', name: 'Malte Caramelo 60L', category: 'Maltes', stock: 0, price: 6.20, unit: 'kg', status: 'Esgotado' }
+  ]);
+
+  const [isAddingProduct, setIsAddingProduct] = useState(false);
+  const form = useForm();
+
+  const addProduct = (data: any) => {
+    const newProduct: Product = {
+      id: Date.now().toString(),
+      name: data.name,
+      category: data.category,
+      stock: parseInt(data.stock),
+      price: parseFloat(data.price),
+      unit: data.unit,
+      status: data.stock > 100 ? 'Disponível' : data.stock > 0 ? 'Estoque Baixo' : 'Esgotado'
+    };
+    setProducts([...products, newProduct]);
+    setIsAddingProduct(false);
+    form.reset();
+  };
+
+  const getStockStatus = (stock: number) => {
+    if (stock === 0) return { variant: 'destructive' as const, label: 'Esgotado' };
+    if (stock < 100) return { variant: 'secondary' as const, label: 'Estoque Baixo' };
+    return { variant: 'default' as const, label: 'Disponível' };
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Package className="w-8 h-8 text-accent" />
-            <h1 className="text-2xl font-bold text-foreground">Fornecedor de Insumos</h1>
+            <h1 className="text-2xl font-bold text-foreground">Dashboard Fornecedor</h1>
           </div>
           <Button asChild variant="outline">
             <Link to="/">Voltar</Link>
@@ -20,199 +71,356 @@ const Supplier = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">
-            Vendas Automatizadas
-          </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
-            Simplifique Suas Vendas
-            <span className="block text-accent">B2B de Insumos</span>
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Receba pedidos de forma prática e automatizada. Gerencie seu estoque inteligentemente 
-            e entregue diretamente nas fábricas.
-          </p>
-          <Button variant="default" size="lg" className="text-lg px-8 py-6 bg-accent hover:bg-accent/90">
-            Começar a Vender
-          </Button>
-        </div>
-      </section>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+            <TabsTrigger value="products">Produtos</TabsTrigger>
+            <TabsTrigger value="orders">Pedidos</TabsTrigger>
+            <TabsTrigger value="profile">Perfil</TabsTrigger>
+          </TabsList>
 
-      {/* Features Grid */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <h3 className="text-3xl font-bold text-center mb-12 text-foreground">
-            Recursos para Fornecedores
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="hover:shadow-lg transition-shadow">
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Produtos Ativos</p>
+                      <p className="text-3xl font-bold text-accent">{products.filter(p => p.status !== 'Esgotado').length}</p>
+                    </div>
+                    <Package className="w-8 h-8 text-accent/60" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Vendas Mês</p>
+                      <p className="text-3xl font-bold text-primary">R$ 2.1M</p>
+                    </div>
+                    <BarChart3 className="w-8 h-8 text-primary/60" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Pedidos</p>
+                      <p className="text-3xl font-bold text-brewery">147</p>
+                    </div>
+                    <Truck className="w-8 h-8 text-brewery/60" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Alerta Estoque</p>
+                      <p className="text-3xl font-bold text-destructive">{products.filter(p => p.status === 'Estoque Baixo' || p.status === 'Esgotado').length}</p>
+                    </div>
+                    <AlertTriangle className="w-8 h-8 text-destructive/60" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Produtos com Estoque Baixo</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {products.filter(p => p.status === 'Estoque Baixo' || p.status === 'Esgotado').map((product) => (
+                      <div key={product.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <h4 className="font-semibold">{product.name}</h4>
+                          <p className="text-sm text-muted-foreground">{product.category}</p>
+                        </div>
+                        <div className="text-right">
+                          <Badge variant={getStockStatus(product.stock).variant}>
+                            {product.stock} {product.unit}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pedidos Recentes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <h4 className="font-semibold">Cervejaria Artesanal SP</h4>
+                        <p className="text-sm text-muted-foreground">Malte Pilsen - 500kg</p>
+                      </div>
+                      <Badge>Pendente</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <h4 className="font-semibold">Brasil Craft</h4>
+                        <p className="text-sm text-muted-foreground">Lúpulo Cascade - 25kg</p>
+                      </div>
+                      <Badge variant="secondary">Enviado</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="products" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Catálogo de Produtos</h2>
+              <Dialog open={isAddingProduct} onOpenChange={setIsAddingProduct}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Novo Produto
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Cadastrar Produto</DialogTitle>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(addProduct)} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nome do Produto</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Ex: Malte Pilsen" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="category"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Categoria</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecione a categoria" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Maltes">Maltes</SelectItem>
+                                <SelectItem value="Lúpulos">Lúpulos</SelectItem>
+                                <SelectItem value="Leveduras">Leveduras</SelectItem>
+                                <SelectItem value="Adjuntos">Adjuntos</SelectItem>
+                                <SelectItem value="Equipamentos">Equipamentos</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name="stock"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Estoque</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="number" placeholder="1000" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="unit"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Unidade</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Unidade" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="kg">kg</SelectItem>
+                                  <SelectItem value="unidade">unidade</SelectItem>
+                                  <SelectItem value="litro">litro</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name="price"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Preço por Unidade (R$)</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="number" step="0.01" placeholder="4.50" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="flex justify-end gap-2">
+                        <Button type="button" variant="outline" onClick={() => setIsAddingProduct(false)}>
+                          Cancelar
+                        </Button>
+                        <Button type="submit">Salvar Produto</Button>
+                      </div>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <Card>
+              <CardContent className="pt-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Produto</TableHead>
+                      <TableHead>Categoria</TableHead>
+                      <TableHead>Estoque</TableHead>
+                      <TableHead>Preço</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {products.map((product) => (
+                      <TableRow key={product.id}>
+                        <TableCell className="font-medium">{product.name}</TableCell>
+                        <TableCell>{product.category}</TableCell>
+                        <TableCell>{product.stock} {product.unit}</TableCell>
+                        <TableCell>R$ {product.price.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <Badge variant={getStockStatus(product.stock).variant}>
+                            {getStockStatus(product.stock).label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="orders" className="space-y-6">
+            <Card>
               <CardHeader>
-                <Bell className="w-10 h-10 text-accent mb-2" />
                 <CardTitle>Central de Pedidos</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Receba todos os pedidos em uma central unificada com notificações automáticas.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <Bell className="w-4 h-4 text-accent" />
-                    Alertas em tempo real
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-accent" />
-                    Confirmação automática
-                  </li>
-                </ul>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Produto</TableHead>
+                      <TableHead>Quantidade</TableHead>
+                      <TableHead>Valor Total</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">Cervejaria Artesanal SP</TableCell>
+                      <TableCell>Malte Pilsen</TableCell>
+                      <TableCell>500 kg</TableCell>
+                      <TableCell>R$ 2.250,00</TableCell>
+                      <TableCell><Badge>Pendente</Badge></TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">Confirmar</Button>
+                          <Button size="sm" variant="outline">Rejeitar</Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Brasil Craft</TableCell>
+                      <TableCell>Lúpulo Cascade</TableCell>
+                      <TableCell>25 kg</TableCell>
+                      <TableCell>R$ 2.125,00</TableCell>
+                      <TableCell><Badge variant="secondary">Enviado</Badge></TableCell>
+                      <TableCell>
+                        <Button size="sm" variant="outline">Rastrear</Button>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
+          </TabsContent>
 
-            <Card className="hover:shadow-lg transition-shadow">
+          <TabsContent value="profile" className="space-y-6">
+            <Card>
               <CardHeader>
-                <Truck className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Entrega Inteligente</CardTitle>
+                <CardTitle>Dados da Empresa</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Otimize rotas de entrega direto para as fábricas com rastreamento completo.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-primary" />
-                    Otimização de rotas
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Truck className="w-4 h-4 text-primary" />
-                    Rastreamento em tempo real
-                  </li>
-                </ul>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="company-name">Nome da Empresa</Label>
+                    <Input id="company-name" placeholder="Nome da sua empresa" />
+                  </div>
+                  <div>
+                    <Label htmlFor="cnpj">CNPJ</Label>
+                    <Input id="cnpj" placeholder="00.000.000/0000-00" />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Telefone</Label>
+                    <Input id="phone" placeholder="(11) 99999-9999" />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">E-mail</Label>
+                    <Input id="email" type="email" placeholder="contato@fornecedor.com" />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="address">Endereço</Label>
+                  <Input id="address" placeholder="Endereço completo" />
+                </div>
+                <div>
+                  <Label htmlFor="description">Descrição da Empresa</Label>
+                  <Textarea id="description" placeholder="Conte sobre sua empresa..." />
+                </div>
+                <Button>Salvar Dados</Button>
               </CardContent>
             </Card>
-
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <BarChart3 className="w-10 h-10 text-brewery mb-2" />
-                <CardTitle>Gestão de Estoque</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Controle inteligente de estoque com previsão de demanda e alertas de reposição.
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-brewery" />
-                    Previsão de demanda
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-brewery" />
-                    Alertas de estoque baixo
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Product Categories */}
-      <section className="py-16 bg-muted/50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold mb-4 text-foreground">
-              Categorias de Produtos
-            </h3>
-            <p className="text-xl text-muted-foreground">
-              Gerencie todos os tipos de insumos cervejeiros
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <Package className="w-12 h-12 text-accent mx-auto mb-4" />
-                <h4 className="font-semibold mb-2">Maltes</h4>
-                <p className="text-sm text-muted-foreground">Base, especiais e caramelos</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <Package className="w-12 h-12 text-primary mx-auto mb-4" />
-                <h4 className="font-semibold mb-2">Lúpulos</h4>
-                <p className="text-sm text-muted-foreground">Amargor, aroma e sabor</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <Package className="w-12 h-12 text-brewery mx-auto mb-4" />
-                <h4 className="font-semibold mb-2">Leveduras</h4>
-                <p className="text-sm text-muted-foreground">Ale, lager e especiais</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <Package className="w-12 h-12 text-hero mx-auto mb-4" />
-                <h4 className="font-semibold mb-2">Adjuntos</h4>
-                <p className="text-sm text-muted-foreground">Açúcares, frutas e especiarias</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Sales Stats */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h3 className="text-3xl font-bold mb-4 text-foreground">
-              Performance de Vendas
-            </h3>
-            <p className="text-xl text-muted-foreground">
-              Acompanhe o crescimento do seu negócio
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-accent mb-2">R$ 2.1M</div>
-                <p className="text-muted-foreground">Vendas Este Mês</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-primary mb-2">147</div>
-                <p className="text-muted-foreground">Pedidos Processados</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-brewery mb-2">96%</div>
-                <p className="text-muted-foreground">Entregas no Prazo</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h3 className="text-3xl font-bold mb-6 text-foreground">
-            Expanda Suas Vendas no Mercado Cervejeiro
-          </h3>
-          <p className="text-xl text-muted-foreground mb-8">
-            Conecte-se com centenas de cervejarias e fábricas em todo o país.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button variant="default" size="lg" className="text-lg px-8 py-6 bg-accent hover:bg-accent/90">
-              Cadastrar Produtos
-            </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-              Conhecer Plataforma
-            </Button>
-          </div>
-        </div>
-      </section>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };
