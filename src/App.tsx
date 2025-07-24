@@ -9,6 +9,8 @@ import GypsyBrewery from "./pages/GypsyBrewery";
 import Factory from "./pages/Factory";
 import Supplier from "./pages/Supplier";
 import BarOwner from "./pages/BarOwner";
+import Auth from "./pages/Auth";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +22,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/cervejaria-cigana" element={<GypsyBrewery />} />
           <Route path="/fabrica" element={<Factory />} />
           <Route path="/fornecedor" element={<Supplier />} />

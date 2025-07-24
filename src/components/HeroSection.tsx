@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-brewery.jpg";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div 
@@ -24,7 +27,12 @@ const HeroSection = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button variant="hero" size="lg" className="text-lg px-8 py-6">
+          <Button 
+            variant="hero" 
+            size="lg" 
+            className="text-lg px-8 py-6"
+            onClick={() => navigate('/auth')}
+          >
             Começar Agora
           </Button>
           <Button variant="outline" size="lg" className="text-lg px-8 py-6">
