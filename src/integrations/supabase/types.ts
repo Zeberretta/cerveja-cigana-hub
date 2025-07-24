@@ -14,7 +14,237 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bar_registrations: {
+        Row: {
+          cnpj: string
+          created_at: string
+          demanda_media_mensal: string
+          email: string
+          endereco_completo: string
+          id: string
+          link_instagram: string | null
+          logo_url: string | null
+          nome_razao_social: string
+          telefone_whatsapp: string
+          tempo_atuacao: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cnpj: string
+          created_at?: string
+          demanda_media_mensal: string
+          email: string
+          endereco_completo: string
+          id?: string
+          link_instagram?: string | null
+          logo_url?: string | null
+          nome_razao_social: string
+          telefone_whatsapp: string
+          tempo_atuacao: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cnpj?: string
+          created_at?: string
+          demanda_media_mensal?: string
+          email?: string
+          endereco_completo?: string
+          id?: string
+          link_instagram?: string | null
+          logo_url?: string | null
+          nome_razao_social?: string
+          telefone_whatsapp?: string
+          tempo_atuacao?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      cigano_registrations: {
+        Row: {
+          cnpj_cpf: string
+          created_at: string
+          email: string
+          endereco_completo: string
+          estimativa_producao_mensal: string
+          id: string
+          inscricao_estadual: string | null
+          link_instagram: string | null
+          link_untappd: string | null
+          logo_url: string | null
+          nome_razao_social: string
+          telefone_whatsapp: string
+          tempo_atuacao: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cnpj_cpf: string
+          created_at?: string
+          email: string
+          endereco_completo: string
+          estimativa_producao_mensal: string
+          id?: string
+          inscricao_estadual?: string | null
+          link_instagram?: string | null
+          link_untappd?: string | null
+          logo_url?: string | null
+          nome_razao_social: string
+          telefone_whatsapp: string
+          tempo_atuacao: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cnpj_cpf?: string
+          created_at?: string
+          email?: string
+          endereco_completo?: string
+          estimativa_producao_mensal?: string
+          id?: string
+          inscricao_estadual?: string | null
+          link_instagram?: string | null
+          link_untappd?: string | null
+          logo_url?: string | null
+          nome_razao_social?: string
+          telefone_whatsapp?: string
+          tempo_atuacao?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      fabrica_registrations: {
+        Row: {
+          capacidade_producao_mensal: string
+          cnpj: string
+          created_at: string
+          email: string
+          endereco_completo: string
+          id: string
+          inscricao_estadual: string | null
+          link_instagram: string | null
+          logo_url: string | null
+          nome_razao_social: string
+          registro_mapa: string
+          telefone_whatsapp: string
+          tempo_atuacao: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          capacidade_producao_mensal: string
+          cnpj: string
+          created_at?: string
+          email: string
+          endereco_completo: string
+          id?: string
+          inscricao_estadual?: string | null
+          link_instagram?: string | null
+          logo_url?: string | null
+          nome_razao_social: string
+          registro_mapa: string
+          telefone_whatsapp: string
+          tempo_atuacao: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          capacidade_producao_mensal?: string
+          cnpj?: string
+          created_at?: string
+          email?: string
+          endereco_completo?: string
+          id?: string
+          inscricao_estadual?: string | null
+          link_instagram?: string | null
+          logo_url?: string | null
+          nome_razao_social?: string
+          registro_mapa?: string
+          telefone_whatsapp?: string
+          tempo_atuacao?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      fornecedor_registrations: {
+        Row: {
+          capacidade_producao_mensal: string
+          cnpj: string
+          created_at: string
+          email: string
+          endereco_completo: string
+          id: string
+          link_instagram: string | null
+          logo_url: string | null
+          nome_razao_social: string
+          registro_mapa: string
+          telefone_whatsapp: string
+          tempo_atuacao: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          capacidade_producao_mensal: string
+          cnpj: string
+          created_at?: string
+          email: string
+          endereco_completo: string
+          id?: string
+          link_instagram?: string | null
+          logo_url?: string | null
+          nome_razao_social: string
+          registro_mapa: string
+          telefone_whatsapp: string
+          tempo_atuacao: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          capacidade_producao_mensal?: string
+          cnpj?: string
+          created_at?: string
+          email?: string
+          endereco_completo?: string
+          id?: string
+          link_instagram?: string | null
+          logo_url?: string | null
+          nome_razao_social?: string
+          registro_mapa?: string
+          telefone_whatsapp?: string
+          tempo_atuacao?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +253,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_type: "cigano" | "fabrica" | "fornecedor" | "bar"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +380,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_type: ["cigano", "fabrica", "fornecedor", "bar"],
+    },
   },
 } as const
