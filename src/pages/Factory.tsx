@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,9 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Link } from "react-router-dom";
-import { Factory, Calendar, Users, TrendingUp, Plus, Edit, Trash2, MessageCircle, Settings } from "lucide-react";
+import { Factory, Calendar, Users, TrendingUp, Plus, Edit, Trash2, Settings } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import DashboardHeader from "@/components/DashboardHeader";
 import Chat from "@/components/Chat";
 
 interface Equipment {
@@ -33,56 +36,103 @@ interface Schedule {
 }
 
 const FactoryPage = () => {
-  const [equipment, setEquipment] = useState<Equipment[]>([
-    { id: '1', name: 'Tanque 1', type: 'Fermentador', capacity: 1000, status: 'Disponível' },
-    { id: '2', name: 'Tanque 2', type: 'Fermentador', capacity: 1500, status: 'Em Uso' },
-    { id: '3', name: 'Mosturador A', type: 'Mosturador', capacity: 800, status: 'Manutenção' }
-  ]);
-
-  const [schedule, setSchedule] = useState<Schedule[]>([
-    { id: '1', gypsy: 'Cervejaria Artesanal SP', recipe: 'IPA Tropical', date: '2024-02-15', volume: 1000, status: 'Confirmado' },
-    { id: '2', gypsy: 'Brasil Craft', recipe: 'Pilsen Premium', date: '2024-02-18', volume: 500, status: 'Pendente' },
-    { id: '3', gypsy: 'Hop Lovers', recipe: 'Stout Imperial', date: '2024-02-22', volume: 800, status: 'Confirmado' }
-  ]);
-
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [schedule, setSchedule] = useState<Schedule[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showChat, setShowChat] = useState(false);
   const [isAddingEquipment, setIsAddingEquipment] = useState(false);
+  const [factoryData, setFactoryData] = useState<any>(null);
 
   const form = useForm();
 
-  const addEquipment = (data: any) => {
-    const newEquipment: Equipment = {
-      id: Date.now().toString(),
-      name: data.name,
-      type: data.type,
-      capacity: parseInt(data.capacity),
-      status: 'Disponível'
-    };
-    setEquipment([...equipment, newEquipment]);
-    setIsAddingEquipment(false);
-    form.reset();
+  useEffect(() => {
+    if (user) {
+      loadFactoryData();
+    }
+  }, [user]);
+
+  const loadFactoryData = async () => {
+    try {
+      // Load factory registration data
+      const { data: factory } = await supabase
+        .from('fabrica_registrations')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
+      
+      setFactoryData(factory);
+      
+      // TODO: Load real equipment and schedule data from database
+      // For now, keep sample data
+      setEquipment([
+        { id: '1', name: 'Tanque 1', type: 'Fermentador', capacity: 1000, status: 'Disponível' },
+        { id: '2', name: 'Tanque 2', type: 'Fermentador', capacity: 1500, status: 'Em Uso' },
+        { id: '3', name: 'Mosturador A', type: 'Mosturador', capacity: 800, status: 'Manutenção' }
+      ]);
+      
+      setSchedule([
+        { id: '1', gypsy: 'Cervejaria Artesanal SP', recipe: 'IPA Tropical', date: '2024-02-15', volume: 1000, status: 'Confirmado' },
+        { id: '2', gypsy: 'Brasil Craft', recipe: 'Pilsen Premium', date: '2024-02-18', volume: 500, status: 'Pendente' },
+        { id: '3', gypsy: 'Hop Lovers', recipe: 'Stout Imperial', date: '2024-02-22', volume: 800, status: 'Confirmado' }
+      ]);
+      
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar dados",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const addEquipment = async (data: any) => {
+    try {
+      // TODO: Save to database when equipment table is created
+      const newEquipment: Equipment = {
+        id: Date.now().toString(),
+        name: data.name,
+        type: data.type,
+        capacity: parseInt(data.capacity),
+        status: 'Disponível'
+      };
+      
+      setEquipment([...equipment, newEquipment]);
+      setIsAddingEquipment(false);
+      form.reset();
+      
+      toast({
+        title: "Equipamento adicionado",
+        description: "Equipamento cadastrado com sucesso",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao adicionar equipamento",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Factory className="w-8 h-8 text-brewery" />
-            <h1 className="text-2xl font-bold text-foreground">Dashboard Fábrica</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button onClick={() => setShowChat(!showChat)} variant="outline" size="sm">
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Chat
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/">Voltar</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader
+        title="Dashboard Fábrica"
+        icon={<Factory className="w-8 h-8 text-brewery" />}
+        onChatToggle={() => setShowChat(!showChat)}
+        showChat={showChat}
+      />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -366,18 +416,30 @@ const FactoryPage = () => {
                     <CardTitle>Dados da Fábrica</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="factory-name">Nome da Fábrica</Label>
-                        <Input id="factory-name" placeholder="Nome da sua fábrica" />
-                      </div>
-                      <div>
-                        <Label htmlFor="cnpj">CNPJ</Label>
-                        <Input id="cnpj" placeholder="00.000.000/0000-00" />
-                      </div>
-                      <div>
-                        <Label htmlFor="capacity">Capacidade Total (L/mês)</Label>
-                        <Input id="capacity" type="number" placeholder="50000" />
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div>
+                         <Label htmlFor="factory-name">Nome da Fábrica</Label>
+                         <Input 
+                           id="factory-name" 
+                           placeholder="Nome da sua fábrica"
+                           defaultValue={factoryData?.nome_razao_social || ''}
+                         />
+                       </div>
+                       <div>
+                         <Label htmlFor="cnpj">CNPJ</Label>
+                         <Input 
+                           id="cnpj" 
+                           placeholder="00.000.000/0000-00"
+                           defaultValue={factoryData?.cnpj || ''}
+                         />
+                       </div>
+                       <div>
+                         <Label htmlFor="capacity">Capacidade de Produção</Label>
+                         <Input 
+                           id="capacity" 
+                           placeholder="Capacidade mensal"
+                           defaultValue={factoryData?.capacidade_producao_mensal || ''}
+                         />
                       </div>
                       <div>
                         <Label htmlFor="established">Ano de Fundação</Label>

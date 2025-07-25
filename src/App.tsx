@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/hooks/useAuth";
+import AuthGuard from "@/components/AuthGuard";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import GypsyBrewery from "./pages/GypsyBrewery";
@@ -21,18 +23,20 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/saiba-mais" element={<SaibaMais />} />
-          <Route path="/cervejaria-cigana" element={<GypsyBrewery />} />
-          <Route path="/fabrica" element={<Factory />} />
-          <Route path="/fornecedor" element={<Supplier />} />
-          <Route path="/bar" element={<BarOwner />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/admin" element={<AuthGuard><Admin /></AuthGuard>} />
+            <Route path="/saiba-mais" element={<SaibaMais />} />
+            <Route path="/cervejaria-cigana" element={<AuthGuard><GypsyBrewery /></AuthGuard>} />
+            <Route path="/fabrica" element={<AuthGuard><Factory /></AuthGuard>} />
+            <Route path="/fornecedor" element={<AuthGuard><Supplier /></AuthGuard>} />
+            <Route path="/bar" element={<AuthGuard><BarOwner /></AuthGuard>} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

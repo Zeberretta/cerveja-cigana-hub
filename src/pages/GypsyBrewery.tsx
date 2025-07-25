@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,9 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Link } from "react-router-dom";
-import { Users, Calendar, Package, Star, Plus, Edit, Trash2, MessageCircle, Clock } from "lucide-react";
+import { Users, Calendar, Package, Star, Plus, Edit, Trash2, Clock } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import DashboardHeader from "@/components/DashboardHeader";
 import Chat from "@/components/Chat";
 
 interface Factory {
@@ -35,58 +38,103 @@ interface Recipe {
 }
 
 const GypsyBrewery = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [factories] = useState<Factory[]>([
     { id: '1', name: 'Cervejaria Independente', location: 'São Paulo', availability: 'Disponível', price: 2500, rating: 4.8 },
     { id: '2', name: 'Brasil Brewing', location: 'Rio de Janeiro', availability: '15 dias', price: 2200, rating: 4.6 },
     { id: '3', name: 'Craft Factory', location: 'Belo Horizonte', availability: 'Lotada', price: 2800, rating: 4.9 }
   ]);
 
-  const [recipes, setRecipes] = useState<Recipe[]>([
-    { id: '1', name: 'IPA Tropical', style: 'IPA', abv: 6.5, ibu: 45, price: 12.50, status: 'Ativa' },
-    { id: '2', name: 'Pilsen Premium', style: 'Pilsen', abv: 4.8, ibu: 25, price: 8.90, status: 'Ativa' },
-    { id: '3', name: 'Stout Imperial', style: 'Stout', abv: 8.2, ibu: 60, price: 15.00, status: 'Rascunho' }
-  ]);
-
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showChat, setShowChat] = useState(false);
   const [isAddingRecipe, setIsAddingRecipe] = useState(false);
+  const [ciganoData, setCiganoData] = useState<any>(null);
 
   const form = useForm();
 
-  const addRecipe = (data: any) => {
-    const newRecipe: Recipe = {
-      id: Date.now().toString(),
-      name: data.name,
-      style: data.style,
-      abv: parseFloat(data.abv),
-      ibu: parseInt(data.ibu),
-      price: parseFloat(data.price),
-      status: 'Rascunho'
-    };
-    setRecipes([...recipes, newRecipe]);
-    setIsAddingRecipe(false);
-    form.reset();
+  useEffect(() => {
+    if (user) {
+      loadCiganoData();
+    }
+  }, [user]);
+
+  const loadCiganoData = async () => {
+    try {
+      // Load cigano registration data
+      const { data: cigano } = await supabase
+        .from('cigano_registrations')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
+      
+      setCiganoData(cigano);
+      
+      // Load sample recipes for now
+      setRecipes([
+        { id: '1', name: 'IPA Tropical', style: 'IPA', abv: 6.5, ibu: 45, price: 12.50, status: 'Ativa' },
+        { id: '2', name: 'Pilsen Premium', style: 'Pilsen', abv: 4.8, ibu: 25, price: 8.90, status: 'Ativa' },
+        { id: '3', name: 'Stout Imperial', style: 'Stout', abv: 8.2, ibu: 60, price: 15.00, status: 'Rascunho' }
+      ]);
+      
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar dados",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const addRecipe = async (data: any) => {
+    try {
+      // TODO: Save to database when recipes table is created
+      const newRecipe: Recipe = {
+        id: Date.now().toString(),
+        name: data.name,
+        style: data.style,
+        abv: parseFloat(data.abv),
+        ibu: parseInt(data.ibu),
+        price: parseFloat(data.price),
+        status: 'Rascunho'
+      };
+      
+      setRecipes([...recipes, newRecipe]);
+      setIsAddingRecipe(false);
+      form.reset();
+      
+      toast({
+        title: "Receita adicionada",
+        description: "Receita cadastrada com sucesso",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao adicionar receita",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Users className="w-8 h-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Dashboard Cigano</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button onClick={() => setShowChat(!showChat)} variant="outline" size="sm">
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Chat
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/">Voltar</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader
+        title="Dashboard Cigano"
+        icon={<Users className="w-8 h-8 text-primary" />}
+        onChatToggle={() => setShowChat(!showChat)}
+        showChat={showChat}
+      />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
