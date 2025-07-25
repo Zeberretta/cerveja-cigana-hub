@@ -11,6 +11,7 @@ import Supplier from "./pages/Supplier";
 import BarOwner from "./pages/BarOwner";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+import SaibaMais from "./pages/SaibaMais";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/saiba-mais" element={<SaibaMais />} />
           <Route path="/cervejaria-cigana" element={<GypsyBrewery />} />
           <Route path="/fabrica" element={<Factory />} />
           <Route path="/fornecedor" element={<Supplier />} />
