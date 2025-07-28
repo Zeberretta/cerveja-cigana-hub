@@ -254,6 +254,167 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          read: boolean
+          receiver_user_id: string
+          related_order_id: string | null
+          sender_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          receiver_user_id: string
+          related_order_id?: string | null
+          sender_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          receiver_user_id?: string
+          related_order_id?: string | null
+          sender_user_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_related_order_id_fkey"
+            columns: ["related_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          related_order_id: string | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          related_order_id?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          related_order_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_related_order_id_fkey"
+            columns: ["related_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          buyer_user_id: string
+          created_at: string
+          delivery_address: string | null
+          delivery_date: string | null
+          equipment_id: string | null
+          id: string
+          notes: string | null
+          product_id: string | null
+          quantity: number
+          recipe_id: string | null
+          seller_user_id: string
+          status: string
+          total_amount: number
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          buyer_user_id: string
+          created_at?: string
+          delivery_address?: string | null
+          delivery_date?: string | null
+          equipment_id?: string | null
+          id?: string
+          notes?: string | null
+          product_id?: string | null
+          quantity: number
+          recipe_id?: string | null
+          seller_user_id: string
+          status?: string
+          total_amount: number
+          unit_price: number
+          updated_at?: string
+        }
+        Update: {
+          buyer_user_id?: string
+          created_at?: string
+          delivery_address?: string | null
+          delivery_date?: string | null
+          equipment_id?: string | null
+          id?: string
+          notes?: string | null
+          product_id?: string | null
+          quantity?: number
+          recipe_id?: string | null
+          seller_user_id?: string
+          status?: string
+          total_amount?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       production_schedule: {
         Row: {
           created_at: string
@@ -397,7 +558,23 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      marketplace_items: {
+        Row: {
+          available_quantity: number | null
+          category: string | null
+          created_at: string | null
+          id: string | null
+          item_type: string | null
+          name: string | null
+          seller_name: string | null
+          seller_type: Database["public"]["Enums"]["user_type"] | null
+          seller_user_id: string | null
+          status: string | null
+          unit: string | null
+          unit_price: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
