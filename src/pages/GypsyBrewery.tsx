@@ -71,12 +71,14 @@ const GypsyBrewery = () => {
       
       setCiganoData(cigano);
       
-      // Load sample recipes for now
-      setRecipes([
-        { id: '1', name: 'IPA Tropical', style: 'IPA', abv: 6.5, ibu: 45, price: 12.50, status: 'Ativa' },
-        { id: '2', name: 'Pilsen Premium', style: 'Pilsen', abv: 4.8, ibu: 25, price: 8.90, status: 'Ativa' },
-        { id: '3', name: 'Stout Imperial', style: 'Stout', abv: 8.2, ibu: 60, price: 15.00, status: 'Rascunho' }
-      ]);
+      // Load real recipes data
+      const { data: recipesData } = await supabase
+        .from('recipes')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+      
+      setRecipes(recipesData || []);
       
     } catch (error: any) {
       toast({
@@ -91,18 +93,22 @@ const GypsyBrewery = () => {
 
   const addRecipe = async (data: any) => {
     try {
-      // TODO: Save to database when recipes table is created
-      const newRecipe: Recipe = {
-        id: Date.now().toString(),
-        name: data.name,
-        style: data.style,
-        abv: parseFloat(data.abv),
-        ibu: parseInt(data.ibu),
-        price: parseFloat(data.price),
-        status: 'Rascunho'
-      };
+      const { error } = await supabase
+        .from('recipes')
+        .insert({
+          user_id: user?.id,
+          name: data.name,
+          style: data.style,
+          abv: parseFloat(data.abv),
+          ibu: parseInt(data.ibu),
+          price: parseFloat(data.price),
+          status: 'Rascunho'
+        });
+        
+      if (error) throw error;
       
-      setRecipes([...recipes, newRecipe]);
+      // Reload recipes data
+      await loadCiganoData();
       setIsAddingRecipe(false);
       form.reset();
       
@@ -113,6 +119,32 @@ const GypsyBrewery = () => {
     } catch (error: any) {
       toast({
         title: "Erro ao adicionar receita",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteRecipe = async (recipeId: string) => {
+    try {
+      const { error } = await supabase
+        .from('recipes')
+        .delete()
+        .eq('id', recipeId)
+        .eq('user_id', user?.id);
+        
+      if (error) throw error;
+      
+      // Reload recipes data
+      await loadCiganoData();
+      
+      toast({
+        title: "Receita removida",
+        description: "Receita removida com sucesso",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao remover receita",
         description: error.message,
         variant: "destructive",
       });
@@ -153,8 +185,8 @@ const GypsyBrewery = () => {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Receitas Ativas</p>
-                          <p className="text-3xl font-bold text-primary">12</p>
+                           <p className="text-sm font-medium text-muted-foreground">Receitas Ativas</p>
+                           <p className="text-3xl font-bold text-primary">{recipes.filter(r => r.status === 'Ativa').length}</p>
                         </div>
                         <Package className="w-8 h-8 text-primary/60" />
                       </div>
@@ -390,16 +422,20 @@ const GypsyBrewery = () => {
                                 {recipe.status}
                               </Badge>
                             </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
-                                <Button size="sm" variant="outline">
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button size="sm" variant="outline">
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
+                             <TableCell>
+                               <div className="flex gap-2">
+                                 <Button size="sm" variant="outline">
+                                   <Edit className="w-4 h-4" />
+                                 </Button>
+                                 <Button 
+                                   size="sm" 
+                                   variant="outline"
+                                   onClick={() => deleteRecipe(recipe.id)}
+                                 >
+                                   <Trash2 className="w-4 h-4" />
+                                 </Button>
+                               </div>
+                             </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>

@@ -116,6 +116,39 @@ export type Database = {
         }
         Relationships: []
       }
+      equipments: {
+        Row: {
+          capacity: number
+          created_at: string
+          id: string
+          name: string
+          status: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          capacity: number
+          created_at?: string
+          id?: string
+          name: string
+          status?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          name?: string
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fabrica_registrations: {
         Row: {
           capacidade_producao_mensal: string
@@ -221,6 +254,84 @@ export type Database = {
         }
         Relationships: []
       }
+      production_schedule: {
+        Row: {
+          created_at: string
+          factory_user_id: string
+          gypsy_name: string
+          gypsy_user_id: string | null
+          id: string
+          production_date: string
+          recipe_name: string
+          status: string
+          updated_at: string
+          volume: number
+        }
+        Insert: {
+          created_at?: string
+          factory_user_id: string
+          gypsy_name: string
+          gypsy_user_id?: string | null
+          id?: string
+          production_date: string
+          recipe_name: string
+          status?: string
+          updated_at?: string
+          volume: number
+        }
+        Update: {
+          created_at?: string
+          factory_user_id?: string
+          gypsy_name?: string
+          gypsy_user_id?: string | null
+          id?: string
+          production_date?: string
+          recipe_name?: string
+          status?: string
+          updated_at?: string
+          volume?: number
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          name: string
+          price: number
+          status: string
+          stock: number
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          name: string
+          price: number
+          status?: string
+          stock?: number
+          unit: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          name?: string
+          price?: number
+          status?: string
+          stock?: number
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -242,6 +353,45 @@ export type Database = {
           updated_at?: string
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Relationships: []
+      }
+      recipes: {
+        Row: {
+          abv: number
+          created_at: string
+          ibu: number
+          id: string
+          name: string
+          price: number
+          status: string
+          style: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          abv: number
+          created_at?: string
+          ibu: number
+          id?: string
+          name: string
+          price: number
+          status?: string
+          style: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          abv?: number
+          created_at?: string
+          ibu?: number
+          id?: string
+          name?: string
+          price?: number
+          status?: string
+          style?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

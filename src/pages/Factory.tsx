@@ -64,19 +64,32 @@ const FactoryPage = () => {
       
       setFactoryData(factory);
       
-      // TODO: Load real equipment and schedule data from database
-      // For now, keep sample data
-      setEquipment([
-        { id: '1', name: 'Tanque 1', type: 'Fermentador', capacity: 1000, status: 'Disponível' },
-        { id: '2', name: 'Tanque 2', type: 'Fermentador', capacity: 1500, status: 'Em Uso' },
-        { id: '3', name: 'Mosturador A', type: 'Mosturador', capacity: 800, status: 'Manutenção' }
-      ]);
+      // Load real equipment data
+      const { data: equipmentData } = await supabase
+        .from('equipments')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
       
-      setSchedule([
-        { id: '1', gypsy: 'Cervejaria Artesanal SP', recipe: 'IPA Tropical', date: '2024-02-15', volume: 1000, status: 'Confirmado' },
-        { id: '2', gypsy: 'Brasil Craft', recipe: 'Pilsen Premium', date: '2024-02-18', volume: 500, status: 'Pendente' },
-        { id: '3', gypsy: 'Hop Lovers', recipe: 'Stout Imperial', date: '2024-02-22', volume: 800, status: 'Confirmado' }
-      ]);
+      setEquipment(equipmentData || []);
+      
+      // Load real schedule data
+      const { data: scheduleData } = await supabase
+        .from('production_schedule')
+        .select('*')
+        .eq('factory_user_id', user?.id)
+        .order('production_date', { ascending: true });
+      
+      const formattedSchedule = scheduleData?.map(item => ({
+        id: item.id,
+        gypsy: item.gypsy_name,
+        recipe: item.recipe_name,
+        date: item.production_date,
+        volume: item.volume,
+        status: item.status
+      })) || [];
+      
+      setSchedule(formattedSchedule);
       
     } catch (error: any) {
       toast({
@@ -91,16 +104,20 @@ const FactoryPage = () => {
 
   const addEquipment = async (data: any) => {
     try {
-      // TODO: Save to database when equipment table is created
-      const newEquipment: Equipment = {
-        id: Date.now().toString(),
-        name: data.name,
-        type: data.type,
-        capacity: parseInt(data.capacity),
-        status: 'Disponível'
-      };
+      const { error } = await supabase
+        .from('equipments')
+        .insert({
+          user_id: user?.id,
+          name: data.name,
+          type: data.type,
+          capacity: parseInt(data.capacity),
+          status: 'Disponível'
+        });
+        
+      if (error) throw error;
       
-      setEquipment([...equipment, newEquipment]);
+      // Reload equipment data
+      await loadFactoryData();
       setIsAddingEquipment(false);
       form.reset();
       
@@ -111,6 +128,32 @@ const FactoryPage = () => {
     } catch (error: any) {
       toast({
         title: "Erro ao adicionar equipamento",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteEquipment = async (equipmentId: string) => {
+    try {
+      const { error } = await supabase
+        .from('equipments')
+        .delete()
+        .eq('id', equipmentId)
+        .eq('user_id', user?.id);
+        
+      if (error) throw error;
+      
+      // Reload equipment data
+      await loadFactoryData();
+      
+      toast({
+        title: "Equipamento removido",
+        description: "Equipamento removido com sucesso",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao remover equipamento",
         description: error.message,
         variant: "destructive",
       });
@@ -368,7 +411,11 @@ const FactoryPage = () => {
                                 <Button size="sm" variant="outline">
                                   <Edit className="w-4 h-4" />
                                 </Button>
-                                <Button size="sm" variant="outline">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => deleteEquipment(item.id)}
+                                >
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
                               </div>
