@@ -27,7 +27,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/admin" element={<AuthGuard><Admin /></AuthGuard>} />
+            <Route path="/admin" element={<AuthGuard requireAdmin><Admin /></AuthGuard>} />
             <Route path="/saiba-mais" element={<SaibaMais />} />
             <Route path="/cervejaria-cigana" element={<AuthGuard><GypsyBrewery /></AuthGuard>} />
             <Route path="/fabrica" element={<AuthGuard><Factory /></AuthGuard>} />

@@ -9,6 +9,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Upload, X } from "lucide-react";
+import { 
+  ciganoRegistrationSchema, 
+  fabricaRegistrationSchema, 
+  fornecedorRegistrationSchema, 
+  barRegistrationSchema,
+  type CiganoRegistrationData,
+  type FabricaRegistrationData,
+  type FornecedorRegistrationData,
+  type BarRegistrationData
+} from "@/lib/validationSchemas";
 
 type UserType = 'cigano' | 'fabrica' | 'fornecedor' | 'bar';
 
@@ -22,6 +32,7 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
   const [loading, setLoading] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -34,6 +45,32 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev: any) => ({ ...prev, [field]: value }));
+    // Clear validation error when user starts typing
+    if (validationErrors[field]) {
+      setValidationErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const validateForm = () => {
+    const schema = userType === 'cigano' ? ciganoRegistrationSchema
+      : userType === 'fabrica' ? fabricaRegistrationSchema
+      : userType === 'fornecedor' ? fornecedorRegistrationSchema
+      : barRegistrationSchema;
+
+    const result = schema.safeParse(formData);
+    
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as string;
+        errors[field] = issue.message;
+      });
+      setValidationErrors(errors);
+      return false;
+    }
+    
+    setValidationErrors({});
+    return true;
   };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,6 +109,17 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form data
+    if (!validateForm()) {
+      toast({
+        title: "Erro de validação",
+        description: "Por favor, corrija os erros no formulário",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -145,15 +193,24 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
             id="nome_razao_social"
             required
             onChange={(e) => handleInputChange('nome_razao_social', e.target.value)}
+            className={validationErrors.nome_razao_social ? 'border-destructive' : ''}
           />
+          {validationErrors.nome_razao_social && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.nome_razao_social}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="cnpj_cpf">CNPJ/CPF *</Label>
           <Input
             id="cnpj_cpf"
             required
+            placeholder="000.000.000-00 ou 00.000.000/0000-00"
             onChange={(e) => handleInputChange('cnpj_cpf', e.target.value)}
+            className={validationErrors.cnpj_cpf ? 'border-destructive' : ''}
           />
+          {validationErrors.cnpj_cpf && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.cnpj_cpf}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="inscricao_estadual">Inscrição Estadual</Label>
@@ -169,7 +226,11 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
             required
             placeholder="Ex: 1000L/mês"
             onChange={(e) => handleInputChange('estimativa_producao_mensal', e.target.value)}
+            className={validationErrors.estimativa_producao_mensal ? 'border-destructive' : ''}
           />
+          {validationErrors.estimativa_producao_mensal && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.estimativa_producao_mensal}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="tempo_atuacao">Tempo de Atuação *</Label>
@@ -178,7 +239,11 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
             required
             placeholder="Ex: 2 anos"
             onChange={(e) => handleInputChange('tempo_atuacao', e.target.value)}
+            className={validationErrors.tempo_atuacao ? 'border-destructive' : ''}
           />
+          {validationErrors.tempo_atuacao && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.tempo_atuacao}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="telefone_whatsapp">Telefone/WhatsApp *</Label>
@@ -186,8 +251,13 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
             id="telefone_whatsapp"
             required
             type="tel"
+            placeholder="(11) 99999-9999"
             onChange={(e) => handleInputChange('telefone_whatsapp', e.target.value)}
+            className={validationErrors.telefone_whatsapp ? 'border-destructive' : ''}
           />
+          {validationErrors.telefone_whatsapp && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.telefone_whatsapp}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="email">E-mail *</Label>
@@ -197,7 +267,11 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
             type="email"
             defaultValue={user.email || ''}
             onChange={(e) => handleInputChange('email', e.target.value)}
+            className={validationErrors.email ? 'border-destructive' : ''}
           />
+          {validationErrors.email && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.email}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="link_untappd">Link do Untappd</Label>
@@ -216,15 +290,19 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
           />
         </div>
       </div>
-      <div>
-        <Label htmlFor="endereco_completo">Endereço Completo *</Label>
-        <Textarea
-          id="endereco_completo"
-          required
-          rows={3}
-          onChange={(e) => handleInputChange('endereco_completo', e.target.value)}
-        />
-      </div>
+        <div>
+          <Label htmlFor="endereco_completo">Endereço Completo *</Label>
+          <Textarea
+            id="endereco_completo"
+            required
+            rows={3}
+            onChange={(e) => handleInputChange('endereco_completo', e.target.value)}
+            className={validationErrors.endereco_completo ? 'border-destructive' : ''}
+          />
+          {validationErrors.endereco_completo && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.endereco_completo}</p>
+          )}
+        </div>
     </>
   );
 
@@ -237,15 +315,24 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
             id="nome_razao_social"
             required
             onChange={(e) => handleInputChange('nome_razao_social', e.target.value)}
+            className={validationErrors.nome_razao_social ? 'border-destructive' : ''}
           />
+          {validationErrors.nome_razao_social && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.nome_razao_social}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="cnpj">CNPJ *</Label>
           <Input
             id="cnpj"
             required
+            placeholder="00.000.000/0000-00"
             onChange={(e) => handleInputChange('cnpj', e.target.value)}
+            className={validationErrors.cnpj ? 'border-destructive' : ''}
           />
+          {validationErrors.cnpj && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.cnpj}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="inscricao_estadual">Inscrição Estadual</Label>
@@ -260,7 +347,11 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
             id="registro_mapa"
             required
             onChange={(e) => handleInputChange('registro_mapa', e.target.value)}
+            className={validationErrors.registro_mapa ? 'border-destructive' : ''}
           />
+          {validationErrors.registro_mapa && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.registro_mapa}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="capacidade_producao_mensal">Capacidade de Produção Mensal *</Label>
@@ -269,7 +360,11 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
             required
             placeholder="Ex: 5000L/mês"
             onChange={(e) => handleInputChange('capacidade_producao_mensal', e.target.value)}
+            className={validationErrors.capacidade_producao_mensal ? 'border-destructive' : ''}
           />
+          {validationErrors.capacidade_producao_mensal && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.capacidade_producao_mensal}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="tempo_atuacao">Tempo de Atuação *</Label>
@@ -278,7 +373,11 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
             required
             placeholder="Ex: 5 anos"
             onChange={(e) => handleInputChange('tempo_atuacao', e.target.value)}
+            className={validationErrors.tempo_atuacao ? 'border-destructive' : ''}
           />
+          {validationErrors.tempo_atuacao && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.tempo_atuacao}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="telefone_whatsapp">Telefone/WhatsApp *</Label>
@@ -286,8 +385,13 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
             id="telefone_whatsapp"
             required
             type="tel"
+            placeholder="(11) 99999-9999"
             onChange={(e) => handleInputChange('telefone_whatsapp', e.target.value)}
+            className={validationErrors.telefone_whatsapp ? 'border-destructive' : ''}
           />
+          {validationErrors.telefone_whatsapp && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.telefone_whatsapp}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="email">E-mail *</Label>
@@ -297,7 +401,11 @@ const RegistrationForm = ({ userType, user }: RegistrationFormProps) => {
             type="email"
             defaultValue={user.email || ''}
             onChange={(e) => handleInputChange('email', e.target.value)}
+            className={validationErrors.email ? 'border-destructive' : ''}
           />
+          {validationErrors.email && (
+            <p className="text-sm text-destructive mt-1">{validationErrors.email}</p>
+          )}
         </div>
         <div>
           <Label htmlFor="link_instagram">Link do Instagram</Label>
