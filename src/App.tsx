@@ -14,6 +14,11 @@ import BarOwner from "./pages/BarOwner";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import SaibaMais from "./pages/SaibaMais";
+import Contato from "./pages/Contato";
+import CervejariaCigana from "./pages/perfis/CervejariaCigana";
+import FabricaProfile from "./pages/perfis/FabricaProfile";
+import FornecedorProfile from "./pages/perfis/FornecedorProfile";
+import BarProfile from "./pages/perfis/BarProfile";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +34,11 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<AuthGuard requireAdmin><Admin /></AuthGuard>} />
             <Route path="/saiba-mais" element={<SaibaMais />} />
+            <Route path="/contato" element={<Contato />} />
+            <Route path="/perfil/cervejaria-cigana" element={<CervejariaCigana />} />
+            <Route path="/perfil/fabrica" element={<FabricaProfile />} />
+            <Route path="/perfil/fornecedor" element={<FornecedorProfile />} />
+            <Route path="/perfil/bar" element={<BarProfile />} />
             <Route path="/cervejaria-cigana" element={<AuthGuard><GypsyBrewery /></AuthGuard>} />
             <Route path="/fabrica" element={<AuthGuard><Factory /></AuthGuard>} />
             <Route path="/fornecedor" element={<AuthGuard><Supplier /></AuthGuard>} />

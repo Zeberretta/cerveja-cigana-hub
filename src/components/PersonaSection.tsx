@@ -16,7 +16,7 @@ const personas = [
       "Gestão de dados de envase e MAPA"
     ],
     color: "primary",
-    link: "/cervejaria-cigana"
+    link: "/perfil/cervejaria-cigana"
   },
   {
     id: "factory",
@@ -30,7 +30,7 @@ const personas = [
       "Dashboard de performance"
     ],
     color: "brewery",
-    link: "/fabrica"
+    link: "/perfil/fabrica"
   },
   {
     id: "supplier",
@@ -44,7 +44,7 @@ const personas = [
       "Relatórios de vendas"
     ],
     color: "accent",
-    link: "/fornecedor"
+    link: "/perfil/fornecedor"
   },
   {
     id: "bar",
@@ -58,7 +58,7 @@ const personas = [
       "Pedidos simplificados"
     ],
     color: "hero",
-    link: "/bar"
+    link: "/perfil/bar"
   }
 ];
 
