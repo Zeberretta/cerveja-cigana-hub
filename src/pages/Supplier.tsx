@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,15 +28,50 @@ interface Product {
 }
 
 const Supplier = () => {
-  const [products, setProducts] = useState<Product[]>([
-    { id: '1', name: 'Malte Pilsen', category: 'Maltes', stock: 5000, price: 4.50, unit: 'kg', status: 'Disponível' },
-    { id: '2', name: 'Lúpulo Cascade', category: 'Lúpulos', stock: 150, price: 85.00, unit: 'kg', status: 'Estoque Baixo' },
-    { id: '3', name: 'Levedura US-05', category: 'Leveduras', stock: 200, price: 25.00, unit: 'unidade', status: 'Disponível' },
-    { id: '4', name: 'Malte Caramelo 60L', category: 'Maltes', stock: 0, price: 6.20, unit: 'kg', status: 'Esgotado' }
-  ]);
-
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const form = useForm();
+
+  useEffect(() => {
+    if (user) {
+      loadSupplierData();
+    }
+  }, [user]);
+
+  const loadSupplierData = async () => {
+    try {
+      // Load real products data
+      const { data: productsData } = await supabase
+        .from('products')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+      
+      setProducts(productsData || []);
+
+      // Load orders where user is the seller
+      const { data: ordersData } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('seller_user_id', user?.id)
+        .order('created_at', { ascending: false });
+      
+      setOrders(ordersData || []);
+      
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar dados",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const addProduct = (data: any) => {
     const newProduct: Product = {
@@ -97,8 +135,8 @@ const Supplier = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Vendas Mês</p>
-                      <p className="text-3xl font-bold text-primary">R$ 2.1M</p>
+                      <p className="text-sm font-medium text-muted-foreground">Pedidos Recebidos</p>
+                      <p className="text-3xl font-bold text-primary">{orders.length}</p>
                     </div>
                     <BarChart3 className="w-8 h-8 text-primary/60" />
                   </div>
@@ -108,8 +146,8 @@ const Supplier = () => {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Pedidos</p>
-                      <p className="text-3xl font-bold text-brewery">147</p>
+                      <p className="text-sm font-medium text-muted-foreground">Pedidos Pendentes</p>
+                      <p className="text-3xl font-bold text-brewery">{orders.filter(o => o.status === 'pending').length}</p>
                     </div>
                     <Truck className="w-8 h-8 text-brewery/60" />
                   </div>

@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +39,8 @@ interface Branch {
 }
 
 const BarOwner = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [beers] = useState<Beer[]>([
     { id: '1', name: 'IPA Tropical', brewery: 'Cervejaria Artesanal SP', style: 'IPA', abv: 6.5, ibu: 45, price: 12.50, rating: 4.8, available: true },
     { id: '2', name: 'Pilsen Premium', brewery: 'Brasil Craft', style: 'Pilsen', abv: 4.8, ibu: 25, price: 8.90, rating: 4.6, available: true },
@@ -43,14 +48,54 @@ const BarOwner = () => {
     { id: '4', name: 'Weiss Tradicional', brewery: 'Bavária Craft', style: 'Weiss', abv: 5.2, ibu: 18, price: 10.50, rating: 4.7, available: true }
   ]);
 
-  const [branches, setBranches] = useState<Branch[]>([
-    { id: '1', name: 'Bar Principal', address: 'Rua das Flores, 123', taps: 8, manager: 'João Silva' },
-    { id: '2', name: 'Filial Shopping', address: 'Shopping Center, L2-15', taps: 6, manager: 'Maria Santos' }
-  ]);
-
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showChat, setShowChat] = useState(false);
   const [isAddingBranch, setIsAddingBranch] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      loadBarData();
+    }
+  }, [user]);
+
+  const loadBarData = async () => {
+    try {
+      // Load bar registration data for branches calculation
+      const { data: barData } = await supabase
+        .from('bar_registrations')
+        .select('*')
+        .eq('user_id', user?.id);
+      
+      // Set mock branches based on registration
+      if (barData && barData.length > 0) {
+        setBranches([
+          { id: '1', name: 'Bar Principal', address: barData[0].endereco_completo, taps: 8, manager: 'Gerente Principal' },
+          { id: '2', name: 'Filial Centro', address: 'Centro da cidade', taps: 6, manager: 'Gerente Filial' }
+        ]);
+      }
+
+      // Load orders where user is the buyer
+      const { data: ordersData } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('buyer_user_id', user?.id)
+        .order('created_at', { ascending: false });
+      
+      setOrders(ordersData || []);
+      
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar dados",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const form = useForm();
 

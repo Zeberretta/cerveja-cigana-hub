@@ -195,10 +195,10 @@ const FactoryPage = () => {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Utilização</p>
-                          <p className="text-3xl font-bold text-brewery">85%</p>
+                          <p className="text-sm font-medium text-muted-foreground">Equipamentos</p>
+                          <p className="text-3xl font-bold text-brewery">{equipment.length}</p>
                         </div>
-                        <TrendingUp className="w-8 h-8 text-brewery/60" />
+                        <Factory className="w-8 h-8 text-brewery/60" />
                       </div>
                     </CardContent>
                   </Card>
@@ -206,10 +206,10 @@ const FactoryPage = () => {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Ciganos Ativos</p>
-                          <p className="text-3xl font-bold text-primary">24</p>
+                          <p className="text-sm font-medium text-muted-foreground">Disponíveis</p>
+                          <p className="text-3xl font-bold text-primary">{equipment.filter(e => e.status === 'Disponível').length}</p>
                         </div>
-                        <Users className="w-8 h-8 text-primary/60" />
+                        <TrendingUp className="w-8 h-8 text-primary/60" />
                       </div>
                     </CardContent>
                   </Card>
@@ -217,10 +217,10 @@ const FactoryPage = () => {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Bateladas/Mês</p>
-                          <p className="text-3xl font-bold text-accent">156</p>
+                          <p className="text-sm font-medium text-muted-foreground">Agendamentos</p>
+                          <p className="text-3xl font-bold text-accent">{schedule.length}</p>
                         </div>
-                        <Factory className="w-8 h-8 text-accent/60" />
+                        <Calendar className="w-8 h-8 text-accent/60" />
                       </div>
                     </CardContent>
                   </Card>
@@ -228,10 +228,10 @@ const FactoryPage = () => {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-muted-foreground">Satisfação</p>
-                          <p className="text-3xl font-bold text-hero">98%</p>
+                          <p className="text-sm font-medium text-muted-foreground">Confirmados</p>
+                          <p className="text-3xl font-bold text-hero">{schedule.filter(s => s.status === 'Confirmado').length}</p>
                         </div>
-                        <TrendingUp className="w-8 h-8 text-hero/60" />
+                        <Users className="w-8 h-8 text-hero/60" />
                       </div>
                     </CardContent>
                   </Card>

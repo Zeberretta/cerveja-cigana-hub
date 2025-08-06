@@ -40,11 +40,8 @@ interface Recipe {
 const GypsyBrewery = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [factories] = useState<Factory[]>([
-    { id: '1', name: 'Cervejaria Independente', location: 'São Paulo', availability: 'Disponível', price: 2500, rating: 4.8 },
-    { id: '2', name: 'Brasil Brewing', location: 'Rio de Janeiro', availability: '15 dias', price: 2200, rating: 4.6 },
-    { id: '3', name: 'Craft Factory', location: 'Belo Horizonte', availability: 'Lotada', price: 2800, rating: 4.9 }
-  ]);
+  const [factories, setFactories] = useState<Factory[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
 
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,6 +76,32 @@ const GypsyBrewery = () => {
         .order('created_at', { ascending: false });
       
       setRecipes(recipesData || []);
+
+      // Load real factories from fabrica_registrations
+      const { data: factoriesData } = await supabase
+        .from('fabrica_registrations')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      const formattedFactories = factoriesData?.map(factory => ({
+        id: factory.id,
+        name: factory.nome_razao_social,
+        location: factory.endereco_completo.split(',')[0], // Get first part of address
+        availability: 'Disponível',
+        price: 2500, // Default price
+        rating: 4.7
+      })) || [];
+      
+      setFactories(formattedFactories);
+
+      // Load orders where user is the buyer
+      const { data: ordersData } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('buyer_user_id', user?.id)
+        .order('created_at', { ascending: false });
+      
+      setOrders(ordersData || []);
       
     } catch (error: any) {
       toast({
@@ -151,6 +174,20 @@ const GypsyBrewery = () => {
     }
   };
 
+  const handleRequestQuote = (factory: Factory) => {
+    toast({
+      title: "Solicitação de Cotação",
+      description: `Cotação solicitada para ${factory.name}. Você receberá uma resposta em breve.`,
+    });
+  };
+
+  const handleRateFactory = (factory: Factory) => {
+    toast({
+      title: "Sistema de Avaliação",
+      description: `Funcionalidade de avaliação para ${factory.name} será implementada em breve.`,
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -195,10 +232,10 @@ const GypsyBrewery = () => {
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Produções Agendadas</p>
-                          <p className="text-3xl font-bold text-brewery">5</p>
-                        </div>
+                         <div>
+                           <p className="text-sm font-medium text-muted-foreground">Pedidos Realizados</p>
+                           <p className="text-3xl font-bold text-brewery">{orders.length}</p>
+                         </div>
                         <Calendar className="w-8 h-8 text-brewery/60" />
                       </div>
                     </CardContent>
@@ -206,10 +243,10 @@ const GypsyBrewery = () => {
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Bares Conectados</p>
-                          <p className="text-3xl font-bold text-accent">28</p>
-                        </div>
+                         <div>
+                           <p className="text-sm font-medium text-muted-foreground">Fábricas Disponíveis</p>
+                           <p className="text-3xl font-bold text-accent">{factories.filter(f => f.availability === 'Disponível').length}</p>
+                         </div>
                         <Users className="w-8 h-8 text-accent/60" />
                       </div>
                     </CardContent>
@@ -277,8 +314,21 @@ const GypsyBrewery = () => {
                             </TableCell>
                             <TableCell>
                               <div className="flex gap-2">
-                                <Button size="sm" variant="outline">Cotar</Button>
-                                <Button size="sm" variant="outline">Avaliar</Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => handleRequestQuote(factory)}
+                                  disabled={factory.availability === 'Lotada'}
+                                >
+                                  Cotar
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => handleRateFactory(factory)}
+                                >
+                                  Avaliar
+                                </Button>
                               </div>
                             </TableCell>
                           </TableRow>
