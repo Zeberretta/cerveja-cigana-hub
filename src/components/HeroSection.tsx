@@ -35,7 +35,7 @@ const HeroSection = () => {
           >
             Começar Agora
           </Button>
-          <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+          <Button variant="outline" size="lg" className="text-lg px-8 py-6 hover-scale">
             <span>Saiba Mais</span>
           </Button>
         </div>

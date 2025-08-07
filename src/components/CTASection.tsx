@@ -19,10 +19,10 @@ const CTASection = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Button variant="hero" size="lg" className="text-lg px-8 py-6">
+              <Button variant="hero" size="lg" className="text-lg px-8 py-6 hover-scale">
                 Cadastre-se Grátis
               </Button>
-              <Button asChild variant="outline" size="lg" className="text-lg px-8 py-6">
+              <Button asChild variant="outline" size="lg" className="text-lg px-8 py-6 hover-scale">
                 <Link to="/contato">Agendar Demo</Link>
               </Button>
             </div>

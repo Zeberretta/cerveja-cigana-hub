@@ -2,10 +2,13 @@ import { Suspense, lazy } from "react";
 import HeroSection from "@/components/HeroSection";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
+import ViewportReveal from "@/components/ViewportReveal";
 
 const PersonaSection = lazy(() => import("@/components/PersonaSection"));
 const BenefitsSection = lazy(() => import("@/components/BenefitsSection"));
 const CTASection = lazy(() => import("@/components/CTASection"));
+const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
+const FAQSection = lazy(() => import("@/components/FAQSection"));
 
 const Index = () => {
   return (
@@ -13,9 +16,21 @@ const Index = () => {
       <Seo title="Cerveja Cigana Hub | Conecte Cervejarias, Fábricas e Fornecedores" description="Plataforma que conecta cervejarias ciganas, fábricas, fornecedores e bares. Gestão, produção e marketplace do ecossistema cervejeiro." />
       <HeroSection />
       <Suspense fallback={<div className="max-w-7xl mx-auto px-6 py-12">Carregando...</div>}>
-        <PersonaSection />
-        <BenefitsSection />
-        <CTASection />
+        <ViewportReveal>
+          <PersonaSection />
+        </ViewportReveal>
+        <ViewportReveal>
+          <BenefitsSection />
+        </ViewportReveal>
+        <ViewportReveal>
+          <TestimonialsSection />
+        </ViewportReveal>
+        <ViewportReveal>
+          <FAQSection />
+        </ViewportReveal>
+        <ViewportReveal>
+          <CTASection />
+        </ViewportReveal>
       </Suspense>
       <Footer />
     </div>
