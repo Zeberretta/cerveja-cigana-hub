@@ -4,10 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Factory, Calendar, Users, TrendingUp, BarChart3, Settings, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 
 const FabricaProfile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
+      <Seo title="Perfil Fábrica | Cerveja Cigana Hub" description="Recursos para fábricas: agenda otimizada, gestão de clientes ciganos e relatórios de produção." />
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-r from-brewery via-primary to-hero">
         <div className="max-w-7xl mx-auto px-6 text-center">

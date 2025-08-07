@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Mail, Phone, MessageCircle, Send, MapPin, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 
 const Contato = () => {
   const [formData, setFormData] = useState({
@@ -46,6 +47,7 @@ const Contato = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
+      <Seo title="Contato | Cerveja Cigana Hub" description="Fale com a Cerveja Cigana Hub para dúvidas, suporte ou agendar uma demonstração da plataforma." />
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-r from-primary via-hero to-accent">
         <div className="max-w-7xl mx-auto px-6 text-center">

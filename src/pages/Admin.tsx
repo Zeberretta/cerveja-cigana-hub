@@ -152,8 +152,9 @@ const Admin = () => {
             <p className="text-sm text-muted-foreground mb-2">Logo</p>
             <img 
               src={registration.logo_url} 
-              alt="Logo" 
+              alt={`Logo de ${registration.nome_fantasia || 'empresa'}`} 
               className="w-16 h-16 object-cover rounded-lg border"
+              loading="lazy"
             />
           </div>
         )}

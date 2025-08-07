@@ -26,6 +26,14 @@ const Header = () => {
           <Link to="/" className="text-2xl font-bold text-foreground hover:text-primary transition-colors">
             CervejaConnect
           </Link>
+          <nav className="ml-8 hidden md:flex items-center gap-6 text-sm">
+            <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">Início</Link>
+            <Link to="/perfil/cervejaria-cigana" className="text-muted-foreground hover:text-foreground transition-colors">Cervejaria Cigana</Link>
+            <Link to="/perfil/fabrica" className="text-muted-foreground hover:text-foreground transition-colors">Fábrica</Link>
+            <Link to="/perfil/fornecedor" className="text-muted-foreground hover:text-foreground transition-colors">Fornecedor</Link>
+            <Link to="/perfil/bar" className="text-muted-foreground hover:text-foreground transition-colors">Bar</Link>
+            <Link to="/contato" className="text-muted-foreground hover:text-foreground transition-colors">Contato</Link>
+          </nav>
         </div>
 
         <div className="flex items-center gap-4">

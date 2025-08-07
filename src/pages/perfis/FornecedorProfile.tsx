@@ -4,10 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Package, Truck, BarChart3, Clock, MapPin, ShoppingCart, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 
 const FornecedorProfile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
+      <Seo title="Perfil Fornecedor | Cerveja Cigana Hub" description="Soluções para fornecedores: pedidos automatizados, logística integrada e analytics de vendas." />
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-r from-accent via-primary to-brewery">
         <div className="max-w-7xl mx-auto px-6 text-center">

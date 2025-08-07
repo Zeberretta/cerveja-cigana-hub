@@ -4,10 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Users, TrendingUp, Calendar, Package, BarChart3, MessageCircle, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 
 const CervejariaCigana = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
+      <Seo title="Perfil Cervejaria Cigana | Cerveja Cigana Hub" description="Benefícios e recursos para cervejarias ciganas: agenda de produção, compras de insumos e analytics." />
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-r from-primary via-hero to-accent">
         <div className="max-w-7xl mx-auto px-6 text-center">

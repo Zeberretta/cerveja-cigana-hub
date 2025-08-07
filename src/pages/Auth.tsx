@@ -7,6 +7,8 @@ import { User } from "@supabase/supabase-js";
 import UserTypeSelection from "@/components/auth/UserTypeSelection";
 import RegistrationForm from "@/components/auth/RegistrationForm";
 import { useToast } from "@/hooks/use-toast";
+import Seo from "@/components/Seo";
+
 
 type UserType = 'cigano' | 'fabrica' | 'fornecedor' | 'bar';
 
@@ -163,6 +165,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
+      <Seo title="Login e Cadastro | Cerveja Cigana Hub" description="Acesse ou crie sua conta na Cerveja Cigana Hub para conectar ciganas, fábricas, fornecedores e bares." />
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">
