@@ -5,6 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { User, Building2, Factory, Truck, Wine } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface Profile {
   id: string;
@@ -22,6 +26,17 @@ interface RegistrationData {
   [key: string]: any;
 }
 
+interface Testimonial {
+  id: string;
+  name: string;
+  role?: string;
+  company?: string;
+  quote: string;
+  avatar_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const Admin = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [ciganoRegistrations, setCiganoRegistrations] = useState<RegistrationData[]>([]);
@@ -30,6 +45,10 @@ const Admin = () => {
   const [barRegistrations, setBarRegistrations] = useState<RegistrationData[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [tForm, setTForm] = useState({ name: "", role: "", company: "", quote: "", avatar_url: "" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [tLoading, setTLoading] = useState(false);
 
   useEffect(() => {
     fetchAllData();
@@ -71,6 +90,71 @@ const Admin = () => {
       setLoading(false);
     }
   };
+
+  // Testimonials CRUD
+  const loadTestimonials = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('testimonials')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setTestimonials(data || []);
+    } catch (error: any) {
+      toast({ title: 'Erro ao carregar depoimentos', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleSubmitTestimonial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTLoading(true);
+    try {
+      if (editingId) {
+        const { error } = await supabase
+          .from('testimonials')
+          .update(tForm)
+          .eq('id', editingId);
+        if (error) throw error;
+        toast({ title: 'Depoimento atualizado' });
+      } else {
+        const { error } = await supabase
+          .from('testimonials')
+          .insert([tForm]);
+        if (error) throw error;
+        toast({ title: 'Depoimento adicionado' });
+      }
+      setTForm({ name: '', role: '', company: '', quote: '', avatar_url: '' });
+      setEditingId(null);
+      loadTestimonials();
+    } catch (error: any) {
+      toast({ title: 'Erro ao salvar', description: error.message, variant: 'destructive' });
+    } finally {
+      setTLoading(false);
+    }
+  };
+
+  const handleEdit = (t: Testimonial) => {
+    setEditingId(t.id);
+    setTForm({ name: t.name, role: t.role || '', company: t.company || '', quote: t.quote, avatar_url: t.avatar_url || '' });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Excluir este depoimento?')) return;
+    const { error } = await supabase
+      .from('testimonials')
+      .delete()
+      .eq('id', id);
+    if (error) {
+      toast({ title: 'Erro ao excluir', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Depoimento removido' });
+      loadTestimonials();
+    }
+  };
+
+  useEffect(() => {
+    loadTestimonials();
+  }, []);
 
   const getStats = () => {
     const total = profiles.length;
@@ -247,6 +331,78 @@ const Admin = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Depoimentos Management */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Depoimentos de Clientes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmitTestimonial} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div>
+                <Label htmlFor="t-name">Nome</Label>
+                <Input id="t-name" value={tForm.name} onChange={(e) => setTForm({ ...tForm, name: e.target.value })} required />
+              </div>
+              <div>
+                <Label htmlFor="t-role">Função/Tipo</Label>
+                <Input id="t-role" value={tForm.role} onChange={(e) => setTForm({ ...tForm, role: e.target.value })} />
+              </div>
+              <div>
+                <Label htmlFor="t-company">Empresa</Label>
+                <Input id="t-company" value={tForm.company} onChange={(e) => setTForm({ ...tForm, company: e.target.value })} />
+              </div>
+              <div>
+                <Label htmlFor="t-avatar">URL da Foto/Avatar</Label>
+                <Input id="t-avatar" value={tForm.avatar_url} onChange={(e) => setTForm({ ...tForm, avatar_url: e.target.value })} placeholder="/placeholder.svg" />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="t-quote">Depoimento</Label>
+                <Textarea id="t-quote" value={tForm.quote} onChange={(e) => setTForm({ ...tForm, quote: e.target.value })} required rows={3} />
+              </div>
+              <div className="md:col-span-2 flex gap-3">
+                <Button type="submit" disabled={tLoading}>{editingId ? 'Atualizar' : 'Adicionar'}</Button>
+                {editingId && (
+                  <Button type="button" variant="outline" onClick={() => { setEditingId(null); setTForm({ name: '', role: '', company: '', quote: '', avatar_url: '' }); }}>
+                    Cancelar
+                  </Button>
+                )}
+              </div>
+            </form>
+
+            <div className="space-y-4">
+              {testimonials.map((t) => (
+                <Card key={t.id}>
+                  <CardContent className="p-4 flex items-start gap-4">
+                    <img
+                      src={t.avatar_url || '/placeholder.svg'}
+                      alt={`Foto de ${t.name}`}
+                      className="h-12 w-12 rounded-full object-cover bg-muted"
+                      loading="lazy"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold leading-tight">{t.name}</p>
+                          <p className="text-sm text-muted-foreground leading-tight">
+                            {[t.role, t.company].filter(Boolean).join(' • ')}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => handleEdit(t)}>Editar</Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleDelete(t.id)}>Excluir</Button>
+                        </div>
+                      </div>
+                      <p className="mt-3 text-foreground/90">“{t.quote}”</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+              {testimonials.length === 0 && (
+                <p className="text-center text-muted-foreground py-6">Nenhum depoimento cadastrado ainda.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Registrations Tabs */}
         <Card>
