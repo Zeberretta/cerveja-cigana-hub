@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      bar_branches: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          manager: string | null
+          name: string
+          taps: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: string
+          manager?: string | null
+          name: string
+          taps?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          manager?: string | null
+          name?: string
+          taps?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bar_registrations: {
         Row: {
           cnpj: string
@@ -637,6 +670,18 @@ export type Database = {
       bootstrap_admin: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      get_public_factories: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          capacidade_producao_mensal: string
+          created_at: string
+          endereco_completo: string
+          id: string
+          link_instagram: string
+          logo_url: string
+          nome_razao_social: string
+        }[]
       }
       has_role: {
         Args: {

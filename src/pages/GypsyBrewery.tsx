@@ -77,11 +77,8 @@ const GypsyBrewery = () => {
       
       setRecipes(recipesData || []);
 
-      // Load real factories from fabrica_registrations
-      const { data: factoriesData } = await supabase
-        .from('fabrica_registrations')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Load real factories using public function
+      const { data: factoriesData } = await supabase.rpc('get_public_factories');
       
       const formattedFactories = factoriesData?.map(factory => ({
         id: factory.id,

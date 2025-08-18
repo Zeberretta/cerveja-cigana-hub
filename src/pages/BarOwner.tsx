@@ -63,19 +63,22 @@ const BarOwner = () => {
 
   const loadBarData = async () => {
     try {
-      // Load bar registration data for branches calculation
-      const { data: barData } = await supabase
-        .from('bar_registrations')
+      // Load real branches data
+      const { data: branchesData } = await supabase
+        .from('bar_branches')
         .select('*')
-        .eq('user_id', user?.id);
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
       
-      // Set mock branches based on registration
-      if (barData && barData.length > 0) {
-        setBranches([
-          { id: '1', name: 'Bar Principal', address: barData[0].endereco_completo, taps: 8, manager: 'Gerente Principal' },
-          { id: '2', name: 'Filial Centro', address: 'Centro da cidade', taps: 6, manager: 'Gerente Filial' }
-        ]);
-      }
+      const formattedBranches = branchesData?.map(branch => ({
+        id: branch.id,
+        name: branch.name,
+        address: branch.address,
+        taps: branch.taps,
+        manager: branch.manager || 'Não definido'
+      })) || [];
+      
+      setBranches(formattedBranches);
 
       // Load orders where user is the buyer
       const { data: ordersData } = await supabase
@@ -99,17 +102,36 @@ const BarOwner = () => {
 
   const form = useForm();
 
-  const addBranch = (data: any) => {
-    const newBranch: Branch = {
-      id: Date.now().toString(),
-      name: data.name,
-      address: data.address,
-      taps: parseInt(data.taps),
-      manager: data.manager
-    };
-    setBranches([...branches, newBranch]);
-    setIsAddingBranch(false);
-    form.reset();
+  const addBranch = async (data: any) => {
+    try {
+      const { error } = await supabase
+        .from('bar_branches')
+        .insert({
+          user_id: user?.id,
+          name: data.name,
+          address: data.address,
+          taps: parseInt(data.taps),
+          manager: data.manager
+        });
+        
+      if (error) throw error;
+      
+      // Reload branches data
+      await loadBarData();
+      setIsAddingBranch(false);
+      form.reset();
+      
+      toast({
+        title: "Filial adicionada",
+        description: "Filial cadastrada com sucesso",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao adicionar filial",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const filteredBeers = beers.filter(beer => 

@@ -73,19 +73,38 @@ const Supplier = () => {
     }
   };
 
-  const addProduct = (data: any) => {
-    const newProduct: Product = {
-      id: Date.now().toString(),
-      name: data.name,
-      category: data.category,
-      stock: parseInt(data.stock),
-      price: parseFloat(data.price),
-      unit: data.unit,
-      status: data.stock > 100 ? 'Disponível' : data.stock > 0 ? 'Estoque Baixo' : 'Esgotado'
-    };
-    setProducts([...products, newProduct]);
-    setIsAddingProduct(false);
-    form.reset();
+  const addProduct = async (data: any) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .insert({
+          user_id: user?.id,
+          name: data.name,
+          category: data.category,
+          stock: parseInt(data.stock),
+          price: parseFloat(data.price),
+          unit: data.unit,
+          status: data.stock > 100 ? 'Disponível' : data.stock > 0 ? 'Estoque Baixo' : 'Esgotado'
+        });
+        
+      if (error) throw error;
+      
+      // Reload products data
+      await loadSupplierData();
+      setIsAddingProduct(false);
+      form.reset();
+      
+      toast({
+        title: "Produto adicionado",
+        description: "Produto cadastrado com sucesso",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro ao adicionar produto",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const getStockStatus = (stock: number) => {
