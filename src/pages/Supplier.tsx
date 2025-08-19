@@ -214,22 +214,24 @@ const Supplier = () => {
                   <CardTitle>Pedidos Recentes</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <h4 className="font-semibold">Cervejaria Artesanal SP</h4>
-                        <p className="text-sm text-muted-foreground">Malte Pilsen - 500kg</p>
-                      </div>
-                      <Badge>Pendente</Badge>
-                    </div>
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <h4 className="font-semibold">Brasil Craft</h4>
-                        <p className="text-sm text-muted-foreground">Lúpulo Cascade - 25kg</p>
-                      </div>
-                      <Badge variant="secondary">Enviado</Badge>
-                    </div>
-                  </div>
+                   <div className="space-y-3">
+                     {orders.slice(0, 3).map((order) => (
+                       <div key={order.id} className="flex items-center justify-between p-3 border rounded-lg">
+                         <div>
+                           <h4 className="font-semibold">Pedido #{order.id.slice(0, 8)}</h4>
+                           <p className="text-sm text-muted-foreground">
+                             Qtd: {order.quantity} - R$ {Number(order.total_amount).toFixed(2)}
+                           </p>
+                         </div>
+                         <Badge variant={order.status === 'pending' ? 'default' : 'secondary'}>
+                           {order.status === 'pending' ? 'Pendente' : 'Processando'}
+                         </Badge>
+                       </div>
+                     ))}
+                     {orders.length === 0 && (
+                       <p className="text-sm text-muted-foreground p-3">Nenhum pedido recente</p>
+                     )}
+                   </div>
                 </CardContent>
               </Card>
             </div>
@@ -410,31 +412,34 @@ const Supplier = () => {
                       <TableHead>Ações</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell className="font-medium">Cervejaria Artesanal SP</TableCell>
-                      <TableCell>Malte Pilsen</TableCell>
-                      <TableCell>500 kg</TableCell>
-                      <TableCell>R$ 2.250,00</TableCell>
-                      <TableCell><Badge>Pendente</Badge></TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="outline">Confirmar</Button>
-                          <Button size="sm" variant="outline">Rejeitar</Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">Brasil Craft</TableCell>
-                      <TableCell>Lúpulo Cascade</TableCell>
-                      <TableCell>25 kg</TableCell>
-                      <TableCell>R$ 2.125,00</TableCell>
-                      <TableCell><Badge variant="secondary">Enviado</Badge></TableCell>
-                      <TableCell>
-                        <Button size="sm" variant="outline">Rastrear</Button>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
+                   <TableBody>
+                     {orders.map((order) => (
+                       <TableRow key={order.id}>
+                         <TableCell className="font-medium">Cliente #{order.buyer_user_id.slice(0, 8)}</TableCell>
+                         <TableCell>Pedido #{order.id.slice(0, 8)}</TableCell>
+                         <TableCell>{order.quantity}</TableCell>
+                         <TableCell>R$ {Number(order.total_amount).toFixed(2)}</TableCell>
+                         <TableCell>
+                           <Badge variant={order.status === 'pending' ? 'default' : 'secondary'}>
+                             {order.status === 'pending' ? 'Pendente' : 'Processando'}
+                           </Badge>
+                         </TableCell>
+                         <TableCell>
+                           <div className="flex gap-2">
+                             <Button size="sm" variant="outline">Confirmar</Button>
+                             <Button size="sm" variant="outline">Detalhes</Button>
+                           </div>
+                         </TableCell>
+                       </TableRow>
+                     ))}
+                      {orders.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center text-muted-foreground">
+                            Nenhum pedido encontrado
+                          </TableCell>
+                        </TableRow>
+                      )}
+                   </TableBody>
                 </Table>
               </CardContent>
             </Card>

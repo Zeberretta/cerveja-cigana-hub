@@ -41,12 +41,7 @@ interface Branch {
 const BarOwner = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [beers] = useState<Beer[]>([
-    { id: '1', name: 'IPA Tropical', brewery: 'Cervejaria Artesanal SP', style: 'IPA', abv: 6.5, ibu: 45, price: 12.50, rating: 4.8, available: true },
-    { id: '2', name: 'Pilsen Premium', brewery: 'Brasil Craft', style: 'Pilsen', abv: 4.8, ibu: 25, price: 8.90, rating: 4.6, available: true },
-    { id: '3', name: 'Stout Imperial', brewery: 'Hop Lovers', style: 'Stout', abv: 8.2, ibu: 60, price: 15.00, rating: 4.9, available: false },
-    { id: '4', name: 'Weiss Tradicional', brewery: 'Bavária Craft', style: 'Weiss', abv: 5.2, ibu: 18, price: 10.50, rating: 4.7, available: true }
-  ]);
+  const [beers, setBeers] = useState<Beer[]>([]);
 
   const [branches, setBranches] = useState<Branch[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
@@ -79,6 +74,27 @@ const BarOwner = () => {
       })) || [];
       
       setBranches(formattedBranches);
+
+      // Load real beer data from marketplace
+      const { data: beersData } = await supabase
+        .from('beers')
+        .select('*')
+        .eq('available', true)
+        .order('rating', { ascending: false });
+      
+      const formattedBeers = beersData?.map(beer => ({
+        id: beer.id,
+        name: beer.name,
+        brewery: beer.brewery_name,
+        style: beer.style,
+        abv: Number(beer.abv),
+        ibu: beer.ibu,
+        price: Number(beer.price),
+        rating: Number(beer.rating),
+        available: beer.available
+      })) || [];
+      
+      setBeers(formattedBeers);
 
       // Load orders where user is the buyer
       const { data: ordersData } = await supabase

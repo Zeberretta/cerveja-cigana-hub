@@ -95,6 +95,95 @@ export type Database = {
         }
         Relationships: []
       }
+      beer_reviews: {
+        Row: {
+          beer_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          beer_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          beer_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beer_reviews_beer_id_fkey"
+            columns: ["beer_id"]
+            isOneToOne: false
+            referencedRelation: "beers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      beers: {
+        Row: {
+          abv: number
+          available: boolean | null
+          brewery_name: string
+          brewery_user_id: string
+          created_at: string
+          description: string | null
+          ibu: number
+          id: string
+          image_url: string | null
+          name: string
+          price: number
+          rating: number | null
+          style: string
+          total_ratings: number | null
+          updated_at: string
+        }
+        Insert: {
+          abv: number
+          available?: boolean | null
+          brewery_name: string
+          brewery_user_id: string
+          created_at?: string
+          description?: string | null
+          ibu: number
+          id?: string
+          image_url?: string | null
+          name: string
+          price: number
+          rating?: number | null
+          style: string
+          total_ratings?: number | null
+          updated_at?: string
+        }
+        Update: {
+          abv?: number
+          available?: boolean | null
+          brewery_name?: string
+          brewery_user_id?: string
+          created_at?: string
+          description?: string | null
+          ibu?: number
+          id?: string
+          image_url?: string | null
+          name?: string
+          price?: number
+          rating?: number | null
+          style?: string
+          total_ratings?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cigano_registrations: {
         Row: {
           cnpj_cpf: string

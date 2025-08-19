@@ -12,41 +12,6 @@ type Testimonial = {
   avatar_url?: string;
 };
 
-const testimonials = [
-  {
-    name: "Ana Souza",
-    role: "Cervejaria Cigana",
-    company: "Brava Malte",
-    quote:
-      "A plataforma simplificou toda a operação e nos conectou rapidamente a fábricas com capacidade real. Crescemos 30% em 3 meses.",
-    avatar: "/placeholder.svg",
-  },
-  {
-    name: "Carlos Lima",
-    role: "Fábrica",
-    company: "Serra Alta Brew",
-    quote:
-      "Agenda, cotações e comunicação em um único lugar. Reduzimos ociosidade e fechamos parcerias de longo prazo.",
-    avatar: "/placeholder.svg",
-  },
-  {
-    name: "Juliana Ferreira",
-    role: "Fornecedor",
-    company: "Lúpulo Verde",
-    quote:
-      "Novos canais de venda e previsibilidade de demanda. As integrações facilitaram todo o fluxo de pedidos.",
-    avatar: "/placeholder.svg",
-  },
-  {
-    name: "Rafael Santos",
-    role: "Bar/Restaurante",
-    company: "Tap House Centro",
-    quote:
-      "Catálogo atualizado e logística ágil. Conseguimos variar o cardápio com rótulos exclusivos sem complicação.",
-    avatar: "/placeholder.svg",
-  },
-];
-
 const TestimonialsSection = () => {
   const [items, setItems] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,13 +50,13 @@ const TestimonialsSection = () => {
 
         <Carousel>
           <CarouselContent>
-            {(items.length ? items : testimonials).map((t: any, idx) => (
+            {items.length > 0 ? items.map((t, idx) => (
               <CarouselItem key={idx} className="md:basis-1/2 lg:basis-1/3">
                 <Card className="h-full shadow-sm">
                   <CardContent className="p-6 flex flex-col h-full">
                     <div className="flex items-center gap-4 mb-4">
                       <img
-                        src={"avatar_url" in t ? (t.avatar_url || "/placeholder.svg") : (t.avatar || "/placeholder.svg")}
+                        src={t.avatar_url || "/placeholder.svg"}
                         alt={`Foto de ${t.name} - Cliente Cerveja Cigana Hub`}
                         loading="lazy"
                         className="h-12 w-12 rounded-full object-cover bg-muted"
@@ -103,11 +68,21 @@ const TestimonialsSection = () => {
                         </p>
                       </div>
                     </div>
-                    <p className="text-base text-foreground/90">“{t.quote}”</p>
+                    <p className="text-base text-foreground/90">"{t.quote}"</p>
                   </CardContent>
                 </Card>
               </CarouselItem>
-            ))}
+            )) : (
+              <CarouselItem className="md:basis-1/2 lg:basis-1/3">
+                <Card className="h-full shadow-sm">
+                  <CardContent className="p-6 flex flex-col h-full justify-center items-center">
+                    <p className="text-muted-foreground text-center">
+                      {loading ? "Carregando depoimentos..." : "Nenhum depoimento disponível no momento."}
+                    </p>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+            )}
           </CarouselContent>
           <div className="flex items-center justify-center gap-2 mt-6">
             <CarouselPrevious aria-label="Anterior" />
