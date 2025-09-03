@@ -40,7 +40,7 @@ export const useChat = () => {
         .from('profiles')
         .select('user_type')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (!profile) return;
 
@@ -86,11 +86,11 @@ export const useChat = () => {
         
         for (const contactId of contactUserIds) {
           // Get profile
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('user_id, user_type')
-            .eq('user_id', contactId)
-            .single();
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('user_id, user_type')
+        .eq('user_id', contactId)
+        .maybeSingle();
 
           if (!profile) continue;
 
@@ -98,32 +98,32 @@ export const useChat = () => {
           let name = 'Usuário';
           try {
             if (profile.user_type === 'cigano') {
-              const { data } = await supabase
-                .from('cigano_registrations')
-                .select('nome_razao_social')
-                .eq('user_id', contactId)
-                .single();
+            const { data } = await supabase
+              .from('cigano_registrations')
+              .select('nome_razao_social')
+              .eq('user_id', contactId)
+              .maybeSingle();
               name = data?.nome_razao_social || 'Cigano';
             } else if (profile.user_type === 'fabrica') {
-              const { data } = await supabase
-                .from('fabrica_registrations')
-                .select('nome_razao_social')
-                .eq('user_id', contactId)
-                .single();
+            const { data } = await supabase
+              .from('fabrica_registrations')
+              .select('nome_razao_social')
+              .eq('user_id', contactId)
+              .maybeSingle();
               name = data?.nome_razao_social || 'Fábrica';
             } else if (profile.user_type === 'fornecedor') {
-              const { data } = await supabase
-                .from('fornecedor_registrations')
-                .select('nome_razao_social')
-                .eq('user_id', contactId)
-                .single();
+            const { data } = await supabase
+              .from('fornecedor_registrations')
+              .select('nome_razao_social')
+              .eq('user_id', contactId)
+              .maybeSingle();
               name = data?.nome_razao_social || 'Fornecedor';
             } else if (profile.user_type === 'bar') {
-              const { data } = await supabase
-                .from('bar_registrations')
-                .select('nome_razao_social')
-                .eq('user_id', contactId)
-                .single();
+            const { data } = await supabase
+              .from('bar_registrations')
+              .select('nome_razao_social')
+              .eq('user_id', contactId)
+              .maybeSingle();
               name = data?.nome_razao_social || 'Bar';
             }
           } catch (error) {

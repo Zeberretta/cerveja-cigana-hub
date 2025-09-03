@@ -48,7 +48,7 @@ const Auth = () => {
       .from('profiles')
       .select('*')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
     
     if (data) {
       // User has completed registration, redirect to appropriate dashboard

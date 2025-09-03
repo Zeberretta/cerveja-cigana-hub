@@ -60,7 +60,7 @@ const FactoryPage = () => {
         .from('fabrica_registrations')
         .select('*')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
       
       setFactoryData(factory);
       

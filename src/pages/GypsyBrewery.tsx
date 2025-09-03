@@ -64,7 +64,7 @@ const GypsyBrewery = () => {
         .from('cigano_registrations')
         .select('*')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
       
       setCiganoData(cigano);
       
