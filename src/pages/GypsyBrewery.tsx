@@ -12,11 +12,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Users, Calendar, Package, Star, Plus, Edit, Trash2, Clock } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import DashboardHeader from "@/components/DashboardHeader";
 import Chat from "@/components/Chat";
+import { recipeSchema, type RecipeData } from "@/lib/validationSchemas";
 
 interface Factory {
   id: string;
@@ -49,7 +51,16 @@ const GypsyBrewery = () => {
   const [isAddingRecipe, setIsAddingRecipe] = useState(false);
   const [ciganoData, setCiganoData] = useState<any>(null);
 
-  const form = useForm();
+  const recipeForm = useForm<RecipeData>({
+    resolver: zodResolver(recipeSchema),
+    defaultValues: {
+      name: "",
+      style: "",
+      abv: 0,
+      ibu: 0,
+      price: 0,
+    },
+  });
 
   useEffect(() => {
     if (user) {
@@ -130,7 +141,7 @@ const GypsyBrewery = () => {
       // Reload recipes data
       await loadCiganoData();
       setIsAddingRecipe(false);
-      form.reset();
+      recipeForm.reset();
       
       toast({
         title: "Receita adicionada",
@@ -350,10 +361,10 @@ const GypsyBrewery = () => {
                       <DialogHeader>
                         <DialogTitle>Cadastrar Nova Receita</DialogTitle>
                       </DialogHeader>
-                      <Form {...form}>
-                        <form onSubmit={form.handleSubmit(addRecipe)} className="space-y-4">
+                      <Form {...recipeForm}>
+                        <form onSubmit={recipeForm.handleSubmit(addRecipe)} className="space-y-4">
                           <FormField
-                            control={form.control}
+                            control={recipeForm.control}
                             name="name"
                             render={({ field }) => (
                               <FormItem>
@@ -366,7 +377,7 @@ const GypsyBrewery = () => {
                             )}
                           />
                           <FormField
-                            control={form.control}
+                            control={recipeForm.control}
                             name="style"
                             render={({ field }) => (
                               <FormItem>
@@ -391,26 +402,26 @@ const GypsyBrewery = () => {
                           />
                           <div className="grid grid-cols-2 gap-4">
                             <FormField
-                              control={form.control}
+                              control={recipeForm.control}
                               name="abv"
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>ABV (%)</FormLabel>
                                   <FormControl>
-                                    <Input {...field} type="number" step="0.1" placeholder="6.5" />
+                                    <Input {...field} type="number" step="0.1" placeholder="6.5" onChange={(e) => field.onChange(parseFloat(e.target.value))} value={field.value} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
                               )}
                             />
                             <FormField
-                              control={form.control}
+                              control={recipeForm.control}
                               name="ibu"
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>IBU</FormLabel>
                                   <FormControl>
-                                    <Input {...field} type="number" placeholder="45" />
+                                    <Input {...field} type="number" placeholder="45" onChange={(e) => field.onChange(parseInt(e.target.value))} value={field.value} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -418,13 +429,13 @@ const GypsyBrewery = () => {
                             />
                           </div>
                           <FormField
-                            control={form.control}
+                            control={recipeForm.control}
                             name="price"
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Preço de Venda (R$)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" step="0.01" placeholder="12.50" />
+                                  <Input {...field} type="number" step="0.01" placeholder="12.50" onChange={(e) => field.onChange(parseFloat(e.target.value))} value={field.value} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>

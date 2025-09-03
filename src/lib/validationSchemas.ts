@@ -152,7 +152,171 @@ export const barRegistrationSchema = baseSchema.extend({
     .min(1, 'Demanda média mensal é obrigatória'),
 });
 
+// Contact form schema
+export const contactFormSchema = z.object({
+  name: z.string()
+    .min(2, 'Nome deve ter pelo menos 2 caracteres')
+    .max(100, 'Nome deve ter no máximo 100 caracteres'),
+  
+  email: z.string()
+    .email('Email deve ser válido')
+    .regex(emailPattern, 'Formato de email inválido'),
+  
+  phone: z.string()
+    .regex(phonePattern, 'Telefone deve estar no formato (11) 99999-9999')
+    .optional()
+    .or(z.literal('')),
+  
+  company: z.string()
+    .max(100, 'Nome da empresa deve ter no máximo 100 caracteres')
+    .optional()
+    .or(z.literal('')),
+  
+  userType: z.enum(['cigano', 'fabrica', 'fornecedor', 'bar', 'outro'], {
+    message: 'Tipo de usuário é obrigatório',
+  }),
+  
+  subject: z.enum(['demo', 'duvidas', 'precos', 'parceria', 'suporte', 'outro'], {
+    message: 'Assunto é obrigatório',
+  }),
+  
+  message: z.string()
+    .min(10, 'Mensagem deve ter pelo menos 10 caracteres')
+    .max(1000, 'Mensagem deve ter no máximo 1000 caracteres'),
+});
+
+// Beer registration schema
+export const beerRegistrationSchema = z.object({
+  name: z.string()
+    .min(2, 'Nome da cerveja deve ter pelo menos 2 caracteres')
+    .max(100, 'Nome da cerveja deve ter no máximo 100 caracteres'),
+  
+  style: z.string()
+    .min(2, 'Estilo deve ter pelo menos 2 caracteres')
+    .max(50, 'Estilo deve ter no máximo 50 caracteres'),
+  
+  abv: z.number()
+    .min(0.1, 'ABV deve ser maior que 0.1%')
+    .max(20, 'ABV deve ser menor que 20%'),
+  
+  ibu: z.number()
+    .min(0, 'IBU deve ser positivo')
+    .max(150, 'IBU deve ser menor que 150'),
+  
+  price: z.number()
+    .positive('Preço deve ser positivo'),
+  
+  description: z.string()
+    .max(500, 'Descrição deve ter no máximo 500 caracteres')
+    .optional()
+    .or(z.literal('')),
+});
+
+// Bar branch schema
+export const barBranchSchema = z.object({
+  name: z.string()
+    .min(2, 'Nome da filial deve ter pelo menos 2 caracteres')
+    .max(100, 'Nome da filial deve ter no máximo 100 caracteres'),
+  
+  address: z.string()
+    .min(10, 'Endereço deve ter pelo menos 10 caracteres')
+    .max(200, 'Endereço deve ter no máximo 200 caracteres'),
+  
+  manager: z.string()
+    .min(2, 'Nome do gerente deve ter pelo menos 2 caracteres')
+    .max(100, 'Nome do gerente deve ter no máximo 100 caracteres')
+    .optional()
+    .or(z.literal('')),
+  
+  taps: z.number()
+    .min(1, 'Deve ter pelo menos 1 torneira')
+    .max(50, 'Número de torneiras deve ser realista'),
+});
+
+// Production schedule schema
+export const productionScheduleSchema = z.object({
+  gypsy_name: z.string()
+    .min(2, 'Nome da cervejaria cigana deve ter pelo menos 2 caracteres')
+    .max(100, 'Nome da cervejaria cigana deve ter no máximo 100 caracteres'),
+  
+  recipe_name: z.string()
+    .min(2, 'Nome da receita deve ter pelo menos 2 caracteres')
+    .max(100, 'Nome da receita deve ter no máximo 100 caracteres'),
+  
+  production_date: z.string()
+    .refine((date) => {
+      const today = new Date();
+      const selectedDate = new Date(date);
+      return selectedDate >= today;
+    }, 'Data de produção deve ser futura'),
+  
+  volume: z.number()
+    .min(50, 'Volume mínimo é 50 litros')
+    .max(10000, 'Volume máximo é 10.000 litros'),
+});
+
+// Recipe schema
+export const recipeSchema = z.object({
+  name: z.string()
+    .min(2, 'Nome da receita deve ter pelo menos 2 caracteres')
+    .max(100, 'Nome da receita deve ter no máximo 100 caracteres'),
+  
+  style: z.string()
+    .min(2, 'Estilo deve ter pelo menos 2 caracteres')
+    .max(50, 'Estilo deve ter no máximo 50 caracteres'),
+  
+  abv: z.number()
+    .min(0.1, 'ABV deve ser maior que 0.1%')
+    .max(20, 'ABV deve ser menor que 20%'),
+  
+  ibu: z.number()
+    .min(0, 'IBU deve ser positivo')
+    .max(150, 'IBU deve ser menor que 150'),
+  
+  price: z.number()
+    .positive('Preço deve ser positivo'),
+});
+
+// Product schema
+export const productSchema = z.object({
+  name: z.string()
+    .min(2, 'Nome do produto deve ter pelo menos 2 caracteres')
+    .max(100, 'Nome do produto deve ter no máximo 100 caracteres'),
+  
+  category: z.string()
+    .min(2, 'Categoria deve ser selecionada'),
+  
+  unit: z.string()
+    .min(1, 'Unidade deve ser selecionada'),
+  
+  price: z.number()
+    .positive('Preço deve ser positivo'),
+  
+  stock: z.number()
+    .min(0, 'Estoque deve ser positivo ou zero'),
+});
+
+// Equipment schema
+export const equipmentSchema = z.object({
+  name: z.string()
+    .min(2, 'Nome do equipamento deve ter pelo menos 2 caracteres')
+    .max(100, 'Nome do equipamento deve ter no máximo 100 caracteres'),
+  
+  type: z.string()
+    .min(2, 'Tipo deve ser selecionado'),
+  
+  capacity: z.number()
+    .min(1, 'Capacidade deve ser maior que zero'),
+});
+
 export type CiganoRegistrationData = z.infer<typeof ciganoRegistrationSchema>;
 export type FabricaRegistrationData = z.infer<typeof fabricaRegistrationSchema>;
 export type FornecedorRegistrationData = z.infer<typeof fornecedorRegistrationSchema>;
 export type BarRegistrationData = z.infer<typeof barRegistrationSchema>;
+export type ContactFormData = z.infer<typeof contactFormSchema>;
+export type BeerRegistrationData = z.infer<typeof beerRegistrationSchema>;
+export type BarBranchData = z.infer<typeof barBranchSchema>;
+export type ProductionScheduleData = z.infer<typeof productionScheduleSchema>;
+export type RecipeData = z.infer<typeof recipeSchema>;
+export type ProductData = z.infer<typeof productSchema>;
+export type EquipmentData = z.infer<typeof equipmentSchema>;

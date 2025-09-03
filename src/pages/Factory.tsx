@@ -12,11 +12,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Factory, Calendar, Users, TrendingUp, Plus, Edit, Trash2, Settings } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import DashboardHeader from "@/components/DashboardHeader";
 import Chat from "@/components/Chat";
+import { equipmentSchema, productionScheduleSchema, type EquipmentData, type ProductionScheduleData } from "@/lib/validationSchemas";
 
 interface Equipment {
   id: string;
@@ -45,7 +47,24 @@ const FactoryPage = () => {
   const [isAddingEquipment, setIsAddingEquipment] = useState(false);
   const [factoryData, setFactoryData] = useState<any>(null);
 
-  const form = useForm();
+  const equipmentForm = useForm<EquipmentData>({
+    resolver: zodResolver(equipmentSchema),
+    defaultValues: {
+      name: "",
+      type: "",
+      capacity: 1,
+    },
+  });
+
+  const scheduleForm = useForm<ProductionScheduleData>({
+    resolver: zodResolver(productionScheduleSchema),
+    defaultValues: {
+      gypsy_name: "",
+      recipe_name: "",
+      production_date: "",
+      volume: 50,
+    },
+  });
 
   useEffect(() => {
     if (user) {
@@ -119,7 +138,7 @@ const FactoryPage = () => {
       // Reload equipment data
       await loadFactoryData();
       setIsAddingEquipment(false);
-      form.reset();
+      equipmentForm.reset();
       
       toast({
         title: "Equipamento adicionado",
@@ -319,10 +338,10 @@ const FactoryPage = () => {
                       <DialogHeader>
                         <DialogTitle>Cadastrar Equipamento</DialogTitle>
                       </DialogHeader>
-                      <Form {...form}>
-                        <form onSubmit={form.handleSubmit(addEquipment)} className="space-y-4">
+                      <Form {...equipmentForm}>
+                        <form onSubmit={equipmentForm.handleSubmit(addEquipment)} className="space-y-4">
                           <FormField
-                            control={form.control}
+                            control={equipmentForm.control}
                             name="name"
                             render={({ field }) => (
                               <FormItem>
@@ -335,7 +354,7 @@ const FactoryPage = () => {
                             )}
                           />
                           <FormField
-                            control={form.control}
+                            control={equipmentForm.control}
                             name="type"
                             render={({ field }) => (
                               <FormItem>
@@ -358,13 +377,13 @@ const FactoryPage = () => {
                             )}
                           />
                           <FormField
-                            control={form.control}
+                            control={equipmentForm.control}
                             name="capacity"
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Capacidade (L)</FormLabel>
                                 <FormControl>
-                                  <Input {...field} type="number" placeholder="1000" />
+                                  <Input {...field} type="number" placeholder="1000" onChange={(e) => field.onChange(parseInt(e.target.value))} value={field.value} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
