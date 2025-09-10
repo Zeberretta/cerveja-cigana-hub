@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CartProvider } from "@/hooks/useCart";
 import AuthGuard from "@/components/AuthGuard";
 import Header from "@/components/Header";
 import Index from "./pages/Index";
@@ -23,6 +24,9 @@ import FornecedorProfile from "./pages/perfis/FornecedorProfile";
 import BarProfile from "./pages/perfis/BarProfile";
 import Privacidade from "./pages/Privacidade";
 import Termos from "./pages/Termos";
+import Marketplace from "./pages/Marketplace";
+import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
 
 const queryClient = new QueryClient();
 
@@ -34,7 +38,8 @@ const App = () => (
       <HelmetProvider>
         <BrowserRouter>
           <AuthProvider>
-            <Header />
+            <CartProvider>
+              <Header />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
@@ -43,6 +48,9 @@ const App = () => (
               <Route path="/contato" element={<Contato />} />
               <Route path="/privacidade" element={<Privacidade />} />
               <Route path="/termos" element={<Termos />} />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/carrinho" element={<AuthGuard><Cart /></AuthGuard>} />
+              <Route path="/pedidos" element={<AuthGuard><Orders /></AuthGuard>} />
               <Route path="/perfil/cervejaria-cigana" element={<CervejariaCigana />} />
               <Route path="/perfil/fabrica" element={<FabricaProfile />} />
               <Route path="/perfil/fornecedor" element={<FornecedorProfile />} />
@@ -54,6 +62,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </CartProvider>
           </AuthProvider>
         </BrowserRouter>
       </HelmetProvider>
