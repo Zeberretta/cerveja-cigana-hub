@@ -376,6 +376,51 @@ export type Database = {
         }
         Relationships: []
       }
+      marketplace_items: {
+        Row: {
+          available_quantity: number | null
+          category: string
+          created_at: string | null
+          id: string
+          item_type: string
+          name: string
+          seller_name: string
+          seller_type: string
+          seller_user_id: string
+          status: string | null
+          unit: string
+          unit_price: number
+        }
+        Insert: {
+          available_quantity?: number | null
+          category: string
+          created_at?: string | null
+          id?: string
+          item_type: string
+          name: string
+          seller_name: string
+          seller_type: string
+          seller_user_id: string
+          status?: string | null
+          unit: string
+          unit_price: number
+        }
+        Update: {
+          available_quantity?: number | null
+          category?: string
+          created_at?: string | null
+          id?: string
+          item_type?: string
+          name?: string
+          seller_name?: string
+          seller_type?: string
+          seller_user_id?: string
+          status?: string | null
+          unit?: string
+          unit_price?: number
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -737,23 +782,7 @@ export type Database = {
       }
     }
     Views: {
-      marketplace_items: {
-        Row: {
-          available_quantity: number | null
-          category: string | null
-          created_at: string | null
-          id: string | null
-          item_type: string | null
-          name: string | null
-          seller_name: string | null
-          seller_type: Database["public"]["Enums"]["user_type"] | null
-          seller_user_id: string | null
-          status: string | null
-          unit: string | null
-          unit_price: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       bootstrap_admin: {
